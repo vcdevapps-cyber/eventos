@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark-theme">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Evento - Proclame</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/custom.css">
+    <style>
+        .form-section {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .form-section-title {
+            color: #8b5cf6;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(15, 23, 42, 0.5);
+        }
+        
+        .radio-option:hover {
+            border-color: rgba(139, 92, 246, 0.3);
+            background: rgba(139, 92, 246, 0.1);
+        }
+        
+        .radio-option.selected {
+            border-color: #8b5cf6;
+            background: rgba(139, 92, 246, 0.15);
+        }
+        
+        .radio-option input[type="radio"] {
+            display: none;
+        }
+        
+        .radio-option .checkmark {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .radio-option.selected .checkmark {
+            border-color: #8b5cf6;
+        }
+        
+        .radio-option.selected .checkmark::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #8b5cf6;
+        }
+        
+        .preview-card {
+            position: sticky;
+            top: 2rem;
+            transition: all 0.3s;
+        }
+        
+        .character-count {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            text-align: right;
+            margin-top: 0.25rem;
+        }
+        
+        .character-count.warning {
+            color: #f59e0b;
+        }
+        
+        .character-count.error {
+            color: #ef4444;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-900 text-slate-100 min-h-screen font-['Inter']">
+
+    <!-- Navbar -->
+    <nav class="navbar-glass sticky top-0 z-40">
+        <div class="container mx-auto px-4">
+            <div class="flex h-16 items-center justify-between">
+                <div class="flex items-center gap-8">
+                    <a href="index.html" class="text-2xl font-bold text-violet-400 flex items-center gap-2">
+                        <i class="fas fa-bullhorn"></i>
+                        <span>Proclame</span>
+                    </a>
+                    
+                    <div class="hidden md:flex items-center gap-6">
+                        <a href="index.html" class="text-slate-300 hover:text-violet-400 transition-colors flex items-center gap-2">
+                            <i class="fas fa-home"></i>
+                            Início
+                        </a>
+                        <a href="discover.html" class="text-slate-300 hover:text-violet-400 transition-colors flex items-center gap-2">
+                            <i class="fas fa-compass"></i>
+                            Descobrir
+                            <span class="public-events-count bg-violet-500 text-xs px-2 py-0.5 rounded-full"></span>
+                        </a>
+                        <a href="my-events.html" class="text-slate-300 hover:text-violet-400 transition-colors flex items-center gap-2">
+                            <i class="fas fa-calendar-alt"></i>
+                            Meus Eventos
+                            <span class="my-events-count bg-violet-500 text-xs px-2 py-0.5 rounded-full"></span>
+                        </a>
+                        <a href="create.html" class="text-violet-400 font-medium flex items-center gap-2">
+                            <i class="fas fa-plus-circle"></i>
+                            Criar
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTheme()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors" title="Alternar tema">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <a href="discover.html" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg font-medium flex items-center gap-2">
+                        <i class="fas fa-eye"></i>
+                        Visualizar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8">
+        <div class="grid lg:grid-cols-3 gap-8">
+            <!-- Formulário Principal -->
+            <div class="lg:col-span-2">
+                <div class="mb-8">
+                    <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">Criar Novo Evento</h1>
+                    <p class="text-slate-400">
+                        Preencha os detalhes abaixo para criar seu evento. Todos os campos são obrigatórios, exceto onde indicado.
+                    </p>
+                </div>
+                
+                <form id="eventForm" class="space-y-8">
+                    <!-- Informações Básicas -->
+                    <div class="form-section">
+                        <h2 class="form-section-title">
+                            <i class="fas fa-info-circle"></i>
+                            Informações Básicas
+                        </h2>
+                        
+                        <div class="space-y-6">
+                            <!-- Nome do Evento -->
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">
+                                    Nome do Evento *
+                                    <span class="text-slate-500 text-xs ml-2">(Até 100 caracteres)</span>
+                                </label>
+                                <input type="text" 
+                                       id="eventName" 
+                                       name="name" 
+                                       maxlength="100"
+                                       required 
+                                       placeholder="Ex: Festa de Aniversário, Workshop de Fotografia, Reunião de Trabalho..."
+                                       class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500 text-white placeholder-slate-500 input-styled">
+                                <div id="nameCounter" class="character-count">0/100</div>
+                            </div>
+                            
+                            <!-- Descrição -->
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">
+                                    Descrição
+                                    <span class="text-slate-500 text-xs ml-2">(Opcional, até 500 caracteres)</span>
+                                </label>
+                                <textarea 
+                                    id="eventDescription" 
+                                    name="description" 
+                                    maxlength="500"
+                                    rows="4"
+                                    placeholder="Descreva seu evento, programação, regras, o que os participantes devem levar..."
+                                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500 text-white placeholder-slate-500 resize-none input-styled"></textarea>
+                                <div id="descriptionCounter" class="character-count">0/500</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Data e Hora -->
+                    <div class="form-section">
+                        <h2 class="form-section-title">
+                            <i class="fas fa-calendar-alt"></i>
+                            Data e Hora
+                        </h2>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <!-- Data -->
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">
+                                    Data do Evento *
+                                </label>
+                                <input type="date" 
+                                       id="eventDate" 
+                                       name="date" 
+                                       required
+                                       min=""
+                                       class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500 text-white scheme-dark input-styled">
+                                <div class="text-xs text-slate-500 mt-2">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    A data mínima é amanhã
+                                </div>
+                            </div>
+                            
+                            <!-- Hora -->
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">
+                                    Horário *
+                                </label>
+                                <input type="time" 
+                                       id="eventTime" 
+                                       name="time" 
+                                       required
+                                       class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500 text-white scheme-dark input-styled">
+                            </div>
+                        </div>
+                        
+                        <!-- Duração -->
+                        <div class="mt-6">
+                            <label class="block text-sm font-medium text-slate-300 mb-2">
+                                Duração (Opcional)
+                            </label>
+                            <div class="flex items-center gap-4">
+                                <div class="flex-1">
+                                    <input type="number" 
+                                           id="durationHours" 
+                                           name="duration_hours"
+                                           min="0"
+                                           max="72"
+                                           placeholder="Horas"
+                                           class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500 text-white input-styled">
+                                </div>
+                                <span class="text-slate-500">:</span>
+                                <div class="flex-1">
+                                    <input type="number" 
+                                           id="durationMinutes" 
+                                           name="duration_minutes"
+                                           min="0"
+                                           max="59"
+                                           placeholder="Minutos"
+                                           class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500 text-white input-styled">
+                                </div>
+                                <div class="text-sm text-slate-500">
+                                    Deixe em branco para "A combinar"
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Localização -->
+                    <div class="form-section">
+                        <h2 class="form-section-title">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Localização
+                        </h2>
+                        
+                        <div class="space-y-6">
+                            <!-- Tipo de Localização -->
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-4">
+                                    Como deseja especificar o local? *
+                                </label>
+                                
+                                <div class="grid md:grid-cols-3 gap-4">
+                                    <label class="radio-option" for="locationTypeText">
+                                        <input type="radio" id="locationTypeText" name="locationType" value="text" checked>
+                                        <div class="checkmark"></div>
+                                        <div>
+                                            <div class="font-medium">Endereço</div>
+                                            <div class="text-xs text-slate-500">Digite o endereço completo</div>
+                                        </div>
+                                    </label>
+                                    
+                                    <label class="radio-option" for="locationTypeMaps">
+                                        <input type="radio" id="locationTypeMaps" name="locationType" value="maps">
+                                        <div class="checkmark"></div>
+                                        <div>
+                                            <div class="font-medium">Google Maps</div>
+                                            <div class="text-xs text-slate-500">Cole o link do Google Maps</div>
+                                        </div>
+                                    </label>
+                                    
+                                    <label class="radio-option" for="locationTypeNone">
+                                        <input type="radio" id="locationTypeNone" name="locationType" value="none">
+                                        <div class="checkmark"></div>
+                                        <div>
+                                            <div class="font-medium">A definir</div>
+                                            <div class="text-xs text-slate-500">Local será informado depois</div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Campo de Localização -->
+                            <div id="locationFieldContainer">
+                                <label class="block text-sm font-medium text-slate-300 mb-2">
+                                    Local do Evento *
+                                </label>
+                                <input type="text" 
+                                       id="eventLocation" 
+                                       name="location" 
+                                       required
+                                       placeholder="Ex: Rua das Flores, 123 - Centro, São Paulo - SP"
+                                       class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500 text-white placeholder-slate-500 input-styled">
+                                <div class="text-xs text-slate-500 mt-2">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Informe um local físico ou online
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Configurações do Evento -->
+                    <div class="form-section">
+                        <h2 class="form-section-title">
+                            <i class="fas fa-cog"></i>
+                            Configurações
+                        </h2>
+                        
+                        <div class="space-y-6">
+                            <!-- Capacidade -->
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-4">
+                                    Capacidade de Participantes *
+                                </label>
+                                
+                                <div class="grid md:grid-cols-2 gap-4 mb-6">
+                                    <label class="radio-option" for="capacityUnlimited">
+                                        <input type="radio" id="capacityUnlimited" name="type" value="unlimited" checked>
+                                        <div class="checkmark"></div>
+                                        <div>
+                                            <div class="font-medium">Ilimitada</div>
+                                            <div class="text-xs text-slate-500">Qualquer pessoa pode participar</div>
+                                        </div>
+                                    </label>
+                                    
+                                    <label class="radio-option" for="capacityLimited">
+                                        <input type="radio" id="capacityLimited" name="type" value="limited">
+                                        <div class="checkmark"></div>
+                                        <div>
+                                            <div class="font-medium">Limitada</div>
+                                            <div class="text-xs text-slate-500">Defina um número máximo</div>
+                                        </div>
+                                    </label>
+                                </div>
+                                
+                                <!-- Limite de Participantes (aparece apenas se limitado) -->
+                                <div id="capacityLimitContainer" class="hidden">
+                                    <label class="block text-sm font-medium text-slate-300 mb-2">
+                                        Limite de Participantes *
+                                        <span class="text-slate-500 text-xs ml-2">(Incluindo acompanhantes)</span>
+                                    </label>
+                                    <input type="number" 
+                                           id="attendeeLimit" 
+                                           name="attendee_limit"
+                                           min="1"
+                                           max="10000"
+                                           placeholder="Ex: 50"
+                                           class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500 text-white placeholder-slate-500 input-styled">
+                                </div>
+                            </div>
+                            
+                            <!-- Visibilidade -->
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">
+                                    Visibilidade do Evento *
+                                </label>
+                                <select id="eventVisibility" 
+                                        name="visibility"
+                                        class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500 text-white input-styled">
+                                    <option value="public">
+                                        🌍 Público - Qualquer pessoa pode ver e participar
+                                    </option>
+                                    <option value="private">
+                                        🔒 Privado - Apenas com link (não aparece na busca)
+                                    </option>
+                                    <option value="invite-only">
+                                        📧 Somente convidados - Apenas pessoas com código
+                                    </option>
+                                </select>
+                                <div class="text-xs text-slate-500 mt-2">
+                                    <i class="fas fa-lock mr-1"></i>
+                                    Eventos privados são mais seguros para celebrações pessoais
+                                </div>
+                            </div>
+                            
+                            <!-- Código de Acesso (apenas para convidados) -->
+                            <div id="inviteCodeContainer" class="hidden">
+                                <label class="block text-sm font-medium text-slate-300 mb-2">
+                                    Código de Acesso *
+                                    <span class="text-slate-500 text-xs ml-2">(Os convidados precisarão deste código)</span>
+                                </label>
+                                <div class="flex gap-4">
+                                    <input type="text" 
+                                           id="inviteCode" 
+                                           name="invite_code"
+                                           placeholder="Ex: ANIVERSARIO2024"
+                                           class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500 text-white placeholder-slate-500 input-styled">
+                                    <button type="button" 
+                                            id="generateCodeBtn"
+                                            class="px-4 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl font-medium transition-colors whitespace-nowrap">
+                                        Gerar Código
+                                    </button>
+                                </div>
+                                <div class="text-xs text-slate-500 mt-2">
+                                    <i class="fas fa-key mr-1"></i>
+                                    Use letras, números e underscores. Máx: 20 caracteres.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Botões de Ação -->
+                    <div class="flex flex-col sm:flex-row gap-4 pt-8 border-t border-slate-800">
+                        <button type="submit" 
+                                id="submitBtn"
+                                class="btn-primary px-8 py-4 rounded-xl font-bold text-lg flex-1 flex items-center justify-center gap-3">
+                            <i class="fas fa-calendar-plus"></i>
+                            Criar Evento
+                        </button>
+                        
+                        <button type="button" 
+                                id="previewBtn"
+                                class="px-8 py-4 bg-slate-800 hover:bg-slate-700 rounded-xl font-bold text-lg flex-1 flex items-center justify-center gap-3">
+                            <i class="fas fa-eye"></i>
+                            Pré-visualizar
+                        </button>
+                        
+                        <a href="discover.html" 
+                           class="px-8 py-4 border-2 border-slate-700 hover:border-slate-600 rounded-xl font-bold text-lg flex-1 flex items-center justify-center gap-3">
+                            <i class="fas fa-times"></i>
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Preview do Evento -->
+            <div class="lg:col-span-1">
+                <div class="preview-card">
+                    <div class="bg-slate-800/50 rounded-2xl border border-slate-700/50 p-6 mb-6">
+                        <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fas fa-eye text-violet-400"></i>
+                            Pré-visualização
+                        </h2>
+                        <p class="text-slate-400 text-sm mb-6">
+                            Veja como seu evento será exibido para os participantes
+                        </p>
+                        
+                        <div id="eventPreview" class="space-y-4">
+                            <!-- Preview será gerado dinamicamente -->
+                            <div class="text-center py-12 text-slate-500">
+                                <i class="fas fa-calendar text-4xl mb-4"></i>
+                                <p>Preencha o formulário para ver a pré-visualização</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Dicas -->
+                    <div class="bg-slate-800/30 rounded-2xl border border-slate-700/30 p-6">
+                        <h3 class="font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fas fa-lightbulb text-amber-400"></i>
+                            Dicas para um evento incrível
+                        </h3>
+                        
+                        <ul class="space-y-3 text-sm text-slate-400">
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-check text-emerald-400 mt-0.5"></i>
+                                <span>Use um nome claro e descritivo</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-check text-emerald-400 mt-0.5"></i>
+                                <span>Adicione uma descrição atrativa com todos os detalhes</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-check text-emerald-400 mt-0.5"></i>
+                                <span>Para eventos privados, use um código de acesso</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-check text-emerald-400 mt-0.5"></i>
+                                <span>Compartilhe o link com antecedência</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-check text-emerald-400 mt-0.5"></i>
+                                <span>Atualize os participantes sobre mudanças</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 py-8 mt-12">
+        <div class="container mx-auto px-4 text-center text-slate-500">
+            <p>&copy; 2024 Proclame. Todos os eventos criados são de responsabilidade do organizador.</p>
+            <p class="text-sm mt-2">Respeite as leis locais e regulamentos de eventos.</p>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Atualizar contadores
+            updateEventCounters();
+            
+            // Configurar data mínima (amanhã)
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const minDate = tomorrow.toISOString().split('T')[0];
+            document.getElementById('eventDate').min = minDate;
+            
+            // Inicializar formulário
+            setupForm();
+            
+            // Atualizar preview em tempo real
+            setupPreview();
+        });
+        
+        function setupForm() {
+            const form = document.getElementById('eventForm');
+            
+            // Contadores de caracteres
+            setupCharacterCounters();
+            
+            // Toggle capacidade limitada
+            document.querySelectorAll('input[name="type"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const container = document.getElementById('capacityLimitContainer');
+                    if (this.value === 'limited') {
+                        container.classList.remove('hidden');
+                        container.querySelector('input').required = true;
+                    } else {
+                        container.classList.add('hidden');
+                        container.querySelector('input').required = false;
+                    }
+                    updatePreview();
+                });
+            });
+            
+            // Toggle tipo de localização
+            document.querySelectorAll('input[name="locationType"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    updateLocationField();
+                    updatePreview();
+                });
+            });
+            
+            // Toggle visibilidade
+            document.getElementById('eventVisibility').addEventListener('change', function() {
+                const inviteContainer = document.getElementById('inviteCodeContainer');
+                if (this.value === 'invite-only') {
+                    inviteContainer.classList.remove('hidden');
+                    document.getElementById('inviteCode').required = true;
+                    generateInviteCode();
+                } else {
+                    inviteContainer.classList.add('hidden');
+                    document.getElementById('inviteCode').required = false;
+                }
+                updatePreview();
+            });
+            
+            // Gerar código de convite
+            document.getElementById('generateCodeBtn').addEventListener('click', generateInviteCode);
+            
+            // Pré-visualizar
+            document.getElementById('previewBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (validateForm()) {
+                    updatePreview(true);
+                    showNotification('Pré-visualização atualizada!', 'success');
+                }
+            });
+            
+            // Enviar formulário
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (validateForm()) {
+                    createEvent();
+                }
+            });
+            
+            // Atualizar seleção de radio buttons
+            setupRadioOptions();
+            
+            // Inicializar campo de localização
+            updateLocationField();
+        }
+        
+        function setupCharacterCounters() {
+            const nameInput = document.getElementById('eventName');
+            const nameCounter = document.getElementById('nameCounter');
+            const descInput = document.getElementById('eventDescription');
+            const descCounter = document.getElementById('descriptionCounter');
+            
+            nameInput.addEventListener('input', function() {
+                const length = this.value.length;
+                nameCounter.textContent = `${length}/100`;
+                
+                if (length > 90) {
+                    nameCounter.classList.add('warning');
+                    nameCounter.classList.remove('error');
+                } else if (length === 100) {
+                    nameCounter.classList.add('error');
+                    nameCounter.classList.remove('warning');
+                } else {
+                    nameCounter.classList.remove('warning', 'error');
+                }
+                
+                updatePreview();
+            });
+            
+            descInput.addEventListener('input', function() {
+                const length = this.value.length;
+                descCounter.textContent = `${length}/500`;
+                
+                if (length > 450) {
+                    descCounter.classList.add('warning');
+                    descCounter.classList.remove('error');
+                } else if (length === 500) {
+                    descCounter.classList.add('error');
+                    descCounter.classList.remove('warning');
+                } else {
+                    descCounter.classList.remove('warning', 'error');
+                }
+                
+                updatePreview();
+            });
+        }
+        
+        function setupRadioOptions() {
+            document.querySelectorAll('.radio-option').forEach(option => {
+                const input = option.querySelector('input[type="radio"]');
+                
+                option.addEventListener('click', function() {
+                    // Remover selected de todos do mesmo grupo
+                    const groupName = input.name;
+                    document.querySelectorAll(`input[name="${groupName}"]`).forEach(radio => {
+                        radio.parentElement.classList.remove('selected');
+                    });
+                    
+                    // Adicionar selected ao clicado
+                    option.classList.add('selected');
+                    input.checked = true;
+                    
+                    // Disparar evento change
+                    input.dispatchEvent(new Event('change'));
+                });
+                
+                // Marcar como selected se já estiver checked
+                if (input.checked) {
+                    option.classList.add('selected');
+                }
+            });
+        }
+        
+        function updateLocationField() {
+            const locationType = document.querySelector('input[name="locationType"]:checked').value;
+            const container = document.getElementById('locationFieldContainer');
+            const input = document.getElementById('eventLocation');
+            
+            switch(locationType) {
+                case 'text':
+                    container.classList.remove('hidden');
+                    input.required = true;
+                    input.placeholder = 'Ex: Rua das Flores, 123 - Centro, São Paulo - SP';
+                    break;
+                case 'maps':
+                    container.classList.remove('hidden');
+                    input.required = true;
+                    input.placeholder = 'https://maps.google.com/?q=Rua+das+Flores+123';
+                    break;
+                case 'none':
+                    container.classList.add('hidden');
+                    input.required = false;
+                    break;
+            }
+        }
+        
+        function generateInviteCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            
+            for (let i = 0; i < 8; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            
+            document.getElementById('inviteCode').value = code;
+            updatePreview();
+        }
+        
+        function validateForm() {
+            const errors = [];
+            
+            // Nome
+            const name = document.getElementById('eventName').value.trim();
+            if (!name) {
+                errors.push('O nome do evento é obrigatório');
+            } else if (name.length < 3) {
+                errors.push('O nome do evento deve ter pelo menos 3 caracteres');
+            }
+            
+            // Data
+            const date = document.getElementById('eventDate').value;
+            if (!date) {
+                errors.push('A data do evento é obrigatória');
+            } else {
+                const eventDate = new Date(date);
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                tomorrow.setHours(0, 0, 0, 0);
+                
+                if (eventDate < tomorrow) {
+                    errors.push('A data do evento deve ser a partir de amanhã');
+                }
+            }
+            
+            // Hora
+            if (!document.getElementById('eventTime').value) {
+                errors.push('A hora do evento é obrigatória');
+            }
+            
+            // Localização
+            const locationType = document.querySelector('input[name="locationType"]:checked').value;
+            if (locationType !== 'none') {
+                const location = document.getElementById('eventLocation').value.trim();
+                if (!location) {
+                    errors.push('O local do evento é obrigatório');
+                }
+                
+                if (locationType === 'maps' && location) {
+                    if (!isValidGoogleMapsUrl(location)) {
+                        errors.push('Por favor, insira um link válido do Google Maps');
+                    }
+                }
+            }
+            
+            // Capacidade limitada
+            if (document.getElementById('capacityLimited').checked) {
+                const limit = parseInt(document.getElementById('attendeeLimit').value);
+                if (!limit || limit < 1) {
+                    errors.push('Para capacidade limitada, informe um número maior que 0');
+                } else if (limit > 10000) {
+                    errors.push('O limite máximo é de 10.000 participantes');
+                }
+            }
+            
+            // Código de convite
+            if (document.getElementById('eventVisibility').value === 'invite-only') {
+                const code = document.getElementById('inviteCode').value.trim();
+                if (!code) {
+                    errors.push('O código de acesso é obrigatório para eventos somente para convidados');
+                } else if (code.length > 20) {
+                    errors.push('O código de acesso deve ter no máximo 20 caracteres');
+                }
+            }
+            
+            // Mostrar erros
+            if (errors.length > 0) {
+                errors.forEach(error => showNotification(error, 'error', 5000));
+                return false;
+            }
+            
+            return true;
+        }
+        
+        function setupPreview() {
+            // Atualizar preview quando os campos mudarem
+            const inputs = document.querySelectorAll('#eventForm input, #eventForm textarea, #eventForm select');
+            inputs.forEach(input => {
+                input.addEventListener('input', () => updatePreview());
+                input.addEventListener('change', () => updatePreview());
+            });
+        }
+        
+        function updatePreview(fullUpdate = false) {
+            const preview = document.getElementById('eventPreview');
+            
+            // Obter valores do formulário
+            const name = document.getElementById('eventName').value.trim() || 'Nome do Evento';
+            const description = document.getElementById('eventDescription').value.trim() || 
+                              'Descrição do evento será exibida aqui.';
+            const date = document.getElementById('eventDate').value || new Date().toISOString().split('T')[0];
+            const time = document.getElementById('eventTime').value || '19:00';
+            const locationType = document.querySelector('input[name="locationType"]:checked').value;
+            const location = document.getElementById('eventLocation').value.trim() || 
+                            (locationType === 'maps' ? 'Link do Google Maps' : 
+                             locationType === 'none' ? 'Local a definir' : 'Endereço do evento');
+            const capacityType = document.querySelector('input[name="type"]:checked').value;
+            const limit = document.getElementById('attendeeLimit').value || '50';
+            const visibility = document.getElementById('eventVisibility').value;
+            
+            // Atualizar pré-visualização básica
+            if (!fullUpdate) {
+                // Atualização parcial (só nome e descrição)
+                const nameElement = preview.querySelector('.event-preview-name');
+                const descElement = preview.querySelector('.event-preview-desc');
+                
+                if (nameElement) nameElement.textContent = name;
+                if (descElement) descElement.textContent = description;
+                return;
+            }
+            
+            // Atualização completa
+            preview.innerHTML = `
+                <div class="bg-slate-900 rounded-xl p-6 border border-slate-700">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex flex-wrap gap-2">
+                            <span class="status-badge ${capacityType === 'limited' ? 'status-limited' : 'status-unlimited'}">
+                                ${capacityType === 'limited' ? '🎯 Limitado' : '∞ Ilimitado'}
+                            </span>
+                            <span class="status-badge ${visibility === 'public' ? 'status-public' : 'status-private'}">
+                                ${visibility === 'public' ? '🌍 Público' : 
+                                  visibility === 'private' ? '🔒 Privado' : '📧 Convidados'}
+                            </span>
+                        </div>
+                        <span class="text-slate-500 text-sm">
+                            <i class="fas fa-users"></i>
+                            ${capacityType === 'limited' ? `0/${limit}` : '∞'}
+                        </span>
+                    </div>
+                    
+                    <h3 class="event-preview-name text-xl font-bold text-white mb-3">
+                        ${name}
+                    </h3>
+                    
+                    <p class="event-preview-desc text-slate-400 text-sm mb-6">
+                        ${description}
+                    </p>
+                    
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-center gap-3 text-slate-300">
+                            <i class="fas fa-calendar text-violet-400"></i>
+                            <span class="text-sm">${formatDateOnly(date)}</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-slate-300">
+                            <i class="fas fa-clock text-violet-400"></i>
+                            <span class="text-sm">${formatTimeOnly(time)}</span>
+                            <span class="ml-auto text-xs text-amber-400">
+                                ${formatRelativeDate(date, time)}
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-3 text-slate-300">
+                            <i class="fas fa-map-marker-alt text-violet-400"></i>
+                            <span class="text-sm truncate">
+                                ${locationType === 'none' ? 'Local a definir' : 
+                                  locationType === 'maps' ? '📍 Ver no mapa' : location}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    ${capacityType === 'limited' ? `
+                        <div class="mb-6">
+                            <div class="flex justify-between text-sm text-slate-400 mb-2">
+                                <span>Vagas disponíveis</span>
+                                <span>${limit} vagas</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill bg-violet-500" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="text-center">
+                        <button class="px-6 py-3 bg-violet-600 hover:bg-violet-700 rounded-lg font-medium w-full transition-colors">
+                            Confirmar Presença
+                        </button>
+                        <p class="text-xs text-slate-500 mt-3">
+                            Este é apenas uma pré-visualização. O botão não funciona aqui.
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function createEvent() {
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando...';
+            
+            // Coletar dados do formulário
+            const formData = new FormData(document.getElementById('eventForm'));
+            
+            // Preparar dados do evento
+            const eventData = {
+                id: generateId(),
+                name: formData.get('name'),
+                description: formData.get('description') || '',
+                date: formData.get('date'),
+                time: formData.get('time'),
+                location: formData.get('location') || '',
+                locationType: formData.get('locationType'),
+                type: formData.get('type'),
+                attendeeLimit: formData.get('type') === 'limited' ? parseInt(formData.get('attendee_limit')) : null,
+                visibility: formData.get('visibility'),
+                inviteCode: formData.get('visibility') === 'invite-only' ? formData.get('invite_code') : null,
+                duration: formData.get('duration_hours') || formData.get('duration_minutes') ? {
+                    hours: parseInt(formData.get('duration_hours') || 0),
+                    minutes: parseInt(formData.get('duration_minutes') || 0)
+                } : null,
+                userId: getUserId(),
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            // Salvar evento
+            DB.saveEvent(eventData);
+            
+            // Mostrar notificação
+            showNotification('Evento criado com sucesso! Redirecionando...', 'success');
+            
+            // Redirecionar para página do evento
+            setTimeout(() => {
+                window.location.href = `event.html?id=${eventData.id}`;
+            }, 1500);
+        }
+    </script>
+</body>
+
+</html>

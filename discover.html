@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark-theme">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Descobrir Eventos - Proclame</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/custom.css">
+    <style>
+        .event-card {
+            transition: all 0.3s ease;
+        }
+        
+        .event-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .filter-chip {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .filter-chip.active {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            color: white;
+            border-color: transparent;
+        }
+        
+        .empty-state {
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-900 text-slate-100 min-h-screen font-['Inter']">
+
+    <!-- Navbar -->
+    <nav class="navbar-glass sticky top-0 z-40">
+        <div class="container mx-auto px-4">
+            <div class="flex h-16 items-center justify-between">
+                <div class="flex items-center gap-8">
+                    <a href="index.html" class="text-2xl font-bold text-violet-400 flex items-center gap-2">
+                        <i class="fas fa-bullhorn"></i>
+                        <span>Proclame</span>
+                    </a>
+                    
+                    <div class="hidden md:flex items-center gap-6">
+                        <a href="index.html" class="text-slate-300 hover:text-violet-400 transition-colors flex items-center gap-2">
+                            <i class="fas fa-home"></i>
+                            Início
+                        </a>
+                        <a href="discover.html" class="text-violet-400 font-medium flex items-center gap-2">
+                            <i class="fas fa-compass"></i>
+                            Descobrir
+                            <span class="public-events-count bg-violet-500 text-xs px-2 py-0.5 rounded-full"></span>
+                        </a>
+                        <a href="my-events.html" class="text-slate-300 hover:text-violet-400 transition-colors flex items-center gap-2">
+                            <i class="fas fa-calendar-alt"></i>
+                            Meus Eventos
+                            <span class="my-events-count bg-violet-500 text-xs px-2 py-0.5 rounded-full"></span>
+                        </a>
+                        <a href="my-rsvps.html" class="text-slate-300 hover:text-violet-400 transition-colors flex items-center gap-2">
+                            <i class="fas fa-check-circle"></i>
+                            Minhas Confirmações
+                            <span class="my-rsvps-count bg-violet-500 text-xs px-2 py-0.5 rounded-full"></span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTheme()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors" title="Alternar tema">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <a href="create.html" class="btn-primary px-6 py-2 rounded-lg font-medium text-white flex items-center gap-2">
+                        <i class="fas fa-plus"></i>
+                        Criar Evento
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-10">
+            <div>
+                <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">Descobrir Eventos</h1>
+                <p class="text-slate-400">
+                    Explore eventos públicos criados pela comunidade
+                    <span class="ml-2 public-events-count bg-violet-500/20 text-violet-300 text-xs px-2 py-1 rounded-full"></span>
+                </p>
+            </div>
+            
+            <div class="flex flex-wrap gap-3">
+                <a href="create.html" class="btn-primary px-6 py-3 rounded-lg font-medium text-white flex items-center gap-2">
+                    <i class="fas fa-plus-circle"></i>
+                    Criar Evento
+                </a>
+                <button id="filterToggle" class="px-4 py-3 bg-slate-800 hover:bg-slate-700 rounded-lg font-medium flex items-center gap-2">
+                    <i class="fas fa-filter"></i>
+                    Filtrar
+                </button>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div id="filterPanel" class="mb-8 p-6 bg-slate-800/50 rounded-2xl border border-slate-700/50 hidden">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Filtrar por</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <button class="filter-chip px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg" data-filter="all">
+                            Todos
+                        </button>
+                        <button class="filter-chip px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg" data-filter="today">
+                            Hoje
+                        </button>
+                        <button class="filter-chip px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg" data-filter="week">
+                            Esta semana
+                        </button>
+                        <button class="filter-chip px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg" data-filter="month">
+                            Este mês
+                        </button>
+                        <button class="filter-chip px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg" data-filter="unlimited">
+                            Ilimitados
+                        </button>
+                        <button class="filter-chip px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg" data-filter="limited">
+                            Limitados
+                        </button>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Ordenar por</h3>
+                    <select id="sortSelect" class="w-full md:w-auto bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500">
+                        <option value="date_asc">Data: Mais próximo</option>
+                        <option value="date_desc">Data: Mais distante</option>
+                        <option value="attendees_desc">Mais populares</option>
+                        <option value="name_asc">Nome: A-Z</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="mt-6 pt-6 border-t border-slate-700/50">
+                <div class="relative">
+                    <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-500"></i>
+                    <input type="text" id="searchInput" placeholder="Buscar eventos por nome, local ou descrição..." 
+                           class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-12 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500">
+                </div>
+            </div>
+        </div>
+
+        <!-- Grid de Eventos -->
+        <div id="eventsContainer">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="eventsGrid">
+                <!-- Eventos serão carregados aqui -->
+                <div class="col-span-full">
+                    <div class="empty-state text-center py-12">
+                        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-800 mb-6">
+                            <i class="fas fa-calendar text-3xl text-slate-500"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-300 mb-2">Carregando eventos...</h3>
+                        <p class="text-slate-500">Buscando eventos públicos disponíveis</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Paginação -->
+        <div id="pagination" class="mt-12 flex justify-center hidden">
+            <div class="flex gap-2">
+                <button class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed" id="prevPage">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="flex items-center px-4">
+                    <span id="pageInfo" class="text-slate-400">Página 1 de 1</span>
+                </div>
+                <button class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed" id="nextPage">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Estado vazio -->
+        <div id="emptyState" class="hidden">
+            <div class="empty-state text-center py-20">
+                <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-slate-800/50 mb-6">
+                    <i class="fas fa-calendar-times text-4xl text-slate-500"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-300 mb-3">Nenhum evento encontrado</h3>
+                <p class="text-slate-500 max-w-md mx-auto mb-8">
+                    Não encontramos eventos públicos correspondentes aos seus filtros. Tente ajustar os critérios de busca ou seja o primeiro a criar um evento!
+                </p>
+                <a href="create.html" class="btn-primary px-6 py-3 rounded-lg font-medium inline-flex items-center gap-2">
+                    <i class="fas fa-plus-circle"></i>
+                    Criar Primeiro Evento
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 py-8 mt-12">
+        <div class="container mx-auto px-4 text-center text-slate-500">
+            <p>&copy; 2024 Proclame. Eventos públicos são visíveis para toda a comunidade.</p>
+            <p class="text-sm mt-2">Privacidade e segurança em primeiro lugar.</p>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script>
+        // Estado da aplicação
+        let currentEvents = [];
+        let filteredEvents = [];
+        let currentFilter = 'all';
+        let currentSort = 'date_asc';
+        let currentSearch = '';
+        let currentPage = 1;
+        const eventsPerPage = 9;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Atualizar contadores
+            updateEventCounters();
+            
+            // Carregar eventos
+            loadEvents();
+            
+            // Configurar filtros
+            setupFilters();
+            
+            // Configurar busca
+            setupSearch();
+            
+            // Configurar paginação
+            setupPagination();
+            
+            // Alternar painel de filtros
+            document.getElementById('filterToggle').addEventListener('click', function() {
+                const panel = document.getElementById('filterPanel');
+                panel.classList.toggle('hidden');
+                this.innerHTML = panel.classList.contains('hidden') 
+                    ? '<i class="fas fa-filter"></i> Filtrar'
+                    : '<i class="fas fa-times"></i> Fechar';
+            });
+        });
+        
+        function loadEvents() {
+            currentEvents = DB.getPublicEvents();
+            applyFilters();
+        }
+        
+        function applyFilters() {
+            filteredEvents = [...currentEvents];
+            
+            // Aplicar filtro
+            if (currentFilter !== 'all') {
+                const now = new Date();
+                filteredEvents = filteredEvents.filter(event => {
+                    const eventDate = new Date(`${event.date}T${event.time}`);
+                    
+                    switch(currentFilter) {
+                        case 'today':
+                            return eventDate.toDateString() === now.toDateString();
+                        case 'week':
+                            const weekLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+                            return eventDate >= now && eventDate <= weekLater;
+                        case 'month':
+                            const monthLater = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+                            return eventDate >= now && eventDate <= monthLater;
+                        case 'unlimited':
+                            return event.type === 'unlimited';
+                        case 'limited':
+                            return event.type === 'limited';
+                        default:
+                            return true;
+                    }
+                });
+            }
+            
+            // Aplicar busca
+            if (currentSearch.trim()) {
+                const searchTerm = currentSearch.toLowerCase();
+                filteredEvents = filteredEvents.filter(event => {
+                    return (
+                        event.name.toLowerCase().includes(searchTerm) ||
+                        (event.location && event.location.toLowerCase().includes(searchTerm)) ||
+                        (event.description && event.description.toLowerCase().includes(searchTerm))
+                    );
+                });
+            }
+            
+            // Aplicar ordenação
+            filteredEvents.sort((a, b) => {
+                const dateA = new Date(`${a.date}T${a.time}`);
+                const dateB = new Date(`${b.date}T${b.time}`);
+                const attendeesA = DB.getEventAttendeeCount(a.id);
+                const attendeesB = DB.getEventAttendeeCount(b.id);
+                
+                switch(currentSort) {
+                    case 'date_asc':
+                        return dateA - dateB;
+                    case 'date_desc':
+                        return dateB - dateA;
+                    case 'attendees_desc':
+                        return attendeesB - attendeesA;
+                    case 'name_asc':
+                        return a.name.localeCompare(b.name);
+                    default:
+                        return dateA - dateB;
+                }
+            });
+            
+            // Renderizar eventos
+            renderEvents();
+        }
+        
+        function renderEvents() {
+            const grid = document.getElementById('eventsGrid');
+            const emptyState = document.getElementById('emptyState');
+            const pagination = document.getElementById('pagination');
+            
+            if (filteredEvents.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                pagination.classList.add('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            
+            // Calcular paginação
+            const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
+            const startIndex = (currentPage - 1) * eventsPerPage;
+            const endIndex = startIndex + eventsPerPage;
+            const pageEvents = filteredEvents.slice(startIndex, endIndex);
+            
+            // Renderizar eventos da página atual
+            grid.innerHTML = pageEvents.map(event => {
+                const attendees = DB.getEventAttendeeCount(event.id);
+                const relativeDate = formatRelativeDate(event.date, event.time);
+                const isLimited = event.type === 'limited';
+                const spotsLeft = isLimited ? event.attendeeLimit - attendees : null;
+                const isAlmostFull = isLimited && spotsLeft <= event.attendeeLimit * 0.2;
+                
+                return `
+                    <div class="event-card bg-slate-800/50 rounded-2xl overflow-hidden border border-slate-700/50 hover:border-violet-500/50">
+                        <div class="p-6">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="status-badge ${isLimited ? 'status-limited' : 'status-unlimited'}">
+                                        ${isLimited ? '🎯 Limitado' : '∞ Ilimitado'}
+                                    </span>
+                                    <span class="status-badge status-public">
+                                        🌍 Público
+                                    </span>
+                                </div>
+                                <span class="text-slate-500 text-sm flex items-center gap-1">
+                                    <i class="fas fa-users"></i>
+                                    ${formatNumber(attendees)}
+                                </span>
+                            </div>
+                            
+                            <h3 class="text-xl font-bold text-white mb-3 line-clamp-2">
+                                ${event.name}
+                            </h3>
+                            
+                            <p class="text-slate-400 text-sm mb-6 line-clamp-2">
+                                ${event.description || 'Evento incrível aguardando sua presença!'}
+                            </p>
+                            
+                            <div class="space-y-3 mb-6">
+                                <div class="flex items-center gap-3 text-slate-300">
+                                    <i class="fas fa-calendar text-violet-400"></i>
+                                    <span class="text-sm">${formatDateOnly(event.date)}</span>
+                                </div>
+                                <div class="flex items-center gap-3 text-slate-300">
+                                    <i class="fas fa-clock text-violet-400"></i>
+                                    <span class="text-sm">${formatTimeOnly(event.time)}</span>
+                                    <span class="ml-auto text-xs ${relativeDate.includes('Hoje') ? 'text-emerald-400' : 'text-amber-400'}">
+                                        ${relativeDate}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-3 text-slate-300">
+                                    <i class="fas fa-map-marker-alt text-violet-400"></i>
+                                    <span class="text-sm truncate">
+                                        ${event.locationType === 'none' ? 'Local a definir' : 
+                                          event.locationType === 'maps' ? 'Ver no mapa' : event.location}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            ${isLimited ? `
+                                <div class="mb-6">
+                                    <div class="flex justify-between text-sm text-slate-400 mb-2">
+                                        <span>Vagas disponíveis</span>
+                                        <span>${spotsLeft} / ${event.attendeeLimit}</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-bar-fill ${isAlmostFull ? 'bg-red-500' : 'bg-violet-500'}" 
+                                             style="width: ${(attendees / event.attendeeLimit) * 100}%">
+                                        </div>
+                                    </div>
+                                    ${isAlmostFull ? 
+                                        '<p class="text-xs text-red-400 mt-2"><i class="fas fa-exclamation-circle"></i> Quase lotado!</p>' : 
+                                        ''}
+                                </div>
+                            ` : ''}
+                            
+                            <div class="flex justify-between items-center">
+                                <a href="event.html?id=${event.id}" 
+                                   class="text-violet-400 hover:text-violet-300 font-medium flex items-center gap-2 group">
+                                    Ver detalhes
+                                    <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                                </a>
+                                
+                                <button onclick="shareEvent('${event.id}', '${event.name}')" 
+                                        class="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition-colors"
+                                        title="Compartilhar evento">
+                                    <i class="fas fa-share-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Atualizar paginação
+            if (filteredEvents.length > eventsPerPage) {
+                pagination.classList.remove('hidden');
+                document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${totalPages}`;
+                
+                document.getElementById('prevPage').disabled = currentPage === 1;
+                document.getElementById('nextPage').disabled = currentPage === totalPages;
+            } else {
+                pagination.classList.add('hidden');
+            }
+        }
+        
+        function setupFilters() {
+            // Configurar chips de filtro
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.addEventListener('click', function() {
+                    // Remover active de todos
+                    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                    
+                    // Adicionar active ao clicado
+                    this.classList.add('active');
+                    
+                    // Atualizar filtro
+                    currentFilter = this.dataset.filter;
+                    currentPage = 1;
+                    applyFilters();
+                });
+            });
+            
+            // Configurar ordenação
+            document.getElementById('sortSelect').addEventListener('change', function() {
+                currentSort = this.value;
+                applyFilters();
+            });
+            
+            // Ativar filtro "Todos" por padrão
+            document.querySelector('[data-filter="all"]').classList.add('active');
+        }
+        
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            let searchTimeout;
+            
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    currentSearch = this.value;
+                    currentPage = 1;
+                    applyFilters();
+                }, 300);
+            });
+        }
+        
+        function setupPagination() {
+            document.getElementById('prevPage').addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    applyFilters();
+                }
+            });
+            
+            document.getElementById('nextPage').addEventListener('click', function() {
+                const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    applyFilters();
+                }
+            });
+        }
+        
+        function shareEvent(eventId, eventName) {
+            const url = `${window.location.origin}/event.html?id=${eventId}`;
+            copyToClipboard(url);
+        }
+    </script>
+</body>
+
+</html>

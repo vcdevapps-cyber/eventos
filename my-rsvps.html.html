@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark-theme">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minhas Confirmações - Proclame</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/custom.css">
+    <style>
+        .rsvp-card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+        
+        .rsvp-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .rsvp-card.upcoming {
+            border-left: 4px solid #10b981;
+        }
+        
+        .rsvp-card.past {
+            border-left: 4px solid #94a3b8;
+            opacity: 0.8;
+        }
+        
+        .rsvp-card.today {
+            border-left: 4px solid #f59e0b;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+        
+        .empty-state {
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #8b5cf6;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card .label {
+            font-size: 0.875rem;
+            color: #94a3b8;
+        }
+        
+        .action-button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .action-button:hover {
+            transform: translateY(-1px);
+        }
+        
+        .action-button.view {
+            background: rgba(59, 130, 246, 0.1);
+            color: rgb(59, 130, 246);
+        }
+        
+        .action-button.update {
+            background: rgba(245, 158, 11, 0.1);
+            color: rgb(245, 158, 11);
+        }
+        
+        .action-button.cancel {
+            background: rgba(239, 68, 68, 0.1);
+            color: rgb(239, 68, 68);
+        }
+        
+        .tab-navigation {
+            display: flex;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+        
+        .tab-button {
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid transparent;
+            color: #94a3b8;
+            font-weight: 500;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .tab-button:hover {
+            color: #cbd5e1;
+        }
+        
+        .tab-button.active {
+            color: #8b5cf6;
+            border-bottom-color: #8b5cf6;
+        }
+        
+        .rsvp-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .rsvp-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+        
+        .rsvp-organizer {
+            color: #94a3b8;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+        
+        .rsvp-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .rsvp-detail {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #cbd5e1;
+            font-size: 0.875rem;
+        }
+        
+        .rsvp-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .badge-upcoming {
+            background: rgba(16, 185, 129, 0.1);
+            color: rgb(16, 185, 129);
+        }
+        
+        .badge-today {
+            background: rgba(245, 158, 11, 0.1);
+            color: rgb(245, 158, 11);
+        }
+        
+        .badge-past {
+            background: rgba(148, 163, 184, 0.1);
+            color: rgb(148, 163, 184);
+        }
+        
+        .badge-public {
+            background: rgba(34, 197, 94, 0.1);
+            color: rgb(34, 197, 94);
+        }
+        
+        .badge-private {
+            background: rgba(245, 158, 11, 0.1);
+            color: rgb(245, 158, 11);
+        }
+        
+        .badge-invite {
+            background: rgba(168, 85, 247, 0.1);
+            color: rgb(168, 85, 247);
+        }
+        
+        .badge-limited {
+            background: rgba(139, 92, 246, 0.1);
+            color: rgb(139, 92, 246);
+        }
+        
+        .badge-unlimited {
+            background: rgba(59, 130, 246, 0.1);
+            color: rgb(59, 130, 246);
+        }
+        
+        .my-rsvp-info {
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .my-rsvp-info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .my-rsvp-info-title {
+            font-weight: 600;
+            color: white;
+        }
+        
+        .my-rsvp-info-details {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .my-rsvp-info-detail {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #cbd5e1;
+            font-size: 0.875rem;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .rsvp-details {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .my-rsvp-info-details {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-slate-900 text-slate-100 min-h-screen font-['Inter']">
+
+    <!-- Navbar -->
+    <nav class="navbar-glass sticky top-0 z-40">
+        <div class="container mx-auto px-4">
+            <div class="flex h-16 items-center justify-between">
+                <div class="flex items-center gap-8">
+                    <a href="index.html" class="text-2xl font-bold text-violet-400 flex items-center gap-2">
+                        <i class="fas fa-bullhorn"></i>
+                        <span>Proclame</span>
+                    </a>
+                    
+                    <div class="hidden md:flex items-center gap-6">
+                        <a href="index.html" class="text-slate-300 hover:text-violet-400 transition-colors flex items-center gap-2">
+                            <i class="fas fa-home"></i>
+                            Início
+                        </a>
+                        <a href="discover.html" class="text-slate-300 hover:text-violet-400 transition-colors flex items-center gap-2">
+                            <i class="fas fa-compass"></i>
+                            Descobrir
+                            <span class="public-events-count bg-violet-500 text-xs px-2 py-0.5 rounded-full"></span>
+                        </a>
+                        <a href="my-events.html" class="text-slate-300 hover:text-violet-400 transition-colors flex items-center gap-2">
+                            <i class="fas fa-calendar-alt"></i>
+                            Meus Eventos
+                            <span class="my-events-count bg-violet-500 text-xs px-2 py-0.5 rounded-full"></span>
+                        </a>
+                        <a href="my-rsvps.html" class="text-violet-400 font-medium flex items-center gap-2">
+                            <i class="fas fa-check-circle"></i>
+                            Minhas Confirmações
+                            <span class="my-rsvps-count bg-violet-500 text-xs px-2 py-0.5 rounded-full"></span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTheme()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors" title="Alternar tema">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <a href="discover.html" class="btn-primary px-6 py-2 rounded-lg font-medium text-white flex items-center gap-2">
+                        <i class="fas fa-search"></i>
+                        Descobrir Eventos
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8">
+            <div>
+                <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">Minhas Confirmações</h1>
+                <p class="text-slate-400">
+                    Veja todos os eventos que você confirmou presença
+                    <span class="ml-2 my-rsvps-count bg-violet-500/20 text-violet-300 text-xs px-2 py-1 rounded-full"></span>
+                </p>
+            </div>
+            
+            <div class="flex gap-3">
+                <a href="discover.html" class="btn-primary px-6 py-3 rounded-lg font-medium text-white flex items-center gap-2">
+                    <i class="fas fa-search"></i>
+                    Encontrar Eventos
+                </a>
+                <button onclick="exportMyRSVPs()" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-lg font-medium flex items-center gap-2">
+                    <i class="fas fa-file-export"></i>
+                    Exportar
+                </button>
+            </div>
+        </div>
+        
+        <!-- Estatísticas -->
+        <div class="dashboard-stats mb-8">
+            <div class="stat-card">
+                <div class="number" id="totalRSVPs">0</div>
+                <div class="label">Total de Confirmações</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="upcomingRSVPs">0</div>
+                <div class="label">Próximos Eventos</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalGuests">0</div>
+                <div class="label">Total Acompanhantes</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="avgGuests">0.0</div>
+                <div class="label">Média por Evento</div>
+            </div>
+        </div>
+        
+        <!-- Navegação por Tabs -->
+        <div class="tab-navigation">
+            <div class="tab-button active" data-tab="all" onclick="switchTab('all')">
+                <i class="fas fa-layer-group mr-2"></i>
+                Todas
+            </div>
+            <div class="tab-button" data-tab="upcoming" onclick="switchTab('upcoming')">
+                <i class="fas fa-clock mr-2"></i>
+                Próximos
+            </div>
+            <div class="tab-button" data-tab="today" onclick="switchTab('today')">
+                <i class="fas fa-calendar-day mr-2"></i>
+                Hoje
+            </div>
+            <div class="tab-button" data-tab="past" onclick="switchTab('past')">
+                <i class="fas fa-history mr-2"></i>
+                Passados
+            </div>
+        </div>
+        
+        <!-- Lista de Confirmações -->
+        <div id="rsvpsList">
+            <!-- Confirmações serão carregadas aqui -->
+            <div class="empty-state">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-800 mb-6">
+                    <i class="fas fa-calendar-check text-3xl text-slate-500"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-300 mb-2">Carregando suas confirmações...</h3>
+                <p class="text-slate-500">Por favor, aguarde enquanto buscamos os eventos confirmados.</p>
+            </div>
+        </div>
+        
+        <!-- Estado Vazio -->
+        <div id="emptyState" class="hidden">
+            <div class="empty-state">
+                <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-slate-800/50 mb-6">
+                    <i class="fas fa-calendar-times text-4xl text-slate-500"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-300 mb-3">Nenhuma confirmação encontrada</h3>
+                <p class="text-slate-500 max-w-md mx-auto mb-8">
+                    Você ainda não confirmou presença em nenhum evento ou não há confirmações correspondentes ao filtro selecionado.
+                </p>
+                <a href="discover.html" class="btn-primary px-6 py-3 rounded-lg font-medium inline-flex items-center gap-2">
+                    <i class="fas fa-search"></i>
+                    Descobrir Eventos
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 py-8 mt-12">
+        <div class="container mx-auto px-4 text-center text-slate-500">
+            <p>&copy; 2024 Proclame. Gerencie suas confirmações de eventos em um só lugar.</p>
+            <p class="text-sm mt-2">Sua privacidade é importante - seus dados são armazenados localmente.</p>
+        </div>
+    </footer>
+
+    <!-- Modal de Cancelamento de Confirmação -->
+    <div id="cancelModal" class="modal-overlay hidden">
+        <div class="bg-slate-800 rounded-2xl p-8 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-white">Cancelar Confirmação</h3>
+                <button onclick="closeModal()" class="p-2 hover:bg-slate-700 rounded-lg transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-500/20 text-red-400 text-2xl mb-4">
+                    <i class="fas fa-calendar-times"></i>
+                </div>
+                <h4 class="text-lg font-bold text-white mb-2" id="cancelEventTitle">Evento</h4>
+                <p class="text-slate-400">
+                    Tem certeza que deseja cancelar sua confirmação para este evento?
+                </p>
+                <p class="text-slate-500 text-sm mt-3">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    O organizador será notificado (em uma versão futura).
+                </p>
+            </div>
+            
+            <div class="flex gap-4">
+                <button onclick="closeModal()" 
+                        class="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium">
+                    Manter Confirmação
+                </button>
+                <button onclick="confirmCancel()" 
+                        class="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 rounded-lg font-medium text-white">
+                    <i class="fas fa-times mr-2"></i>
+                    Cancelar Presença
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Atualização de Confirmação -->
+    <div id="updateModal" class="modal-overlay hidden">
+        <div class="bg-slate-800 rounded-2xl p-8 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-white">Atualizar Confirmação</h3>
+                <button onclick="closeModal()" class="p-2 hover:bg-slate-700 rounded-lg transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="updateRSVPForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">
+                        Seu Nome *
+                    </label>
+                    <input type="text" 
+                           id="updateName" 
+                           name="name" 
+                           required
+                           placeholder="Como deseja ser chamado?"
+                           class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500 text-white placeholder-slate-500 input-styled">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">
+                        E-mail (Opcional)
+                    </label>
+                    <input type="email" 
+                           id="updateEmail" 
+                           name="email"
+                           placeholder="email@exemplo.com"
+                           class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500 text-white placeholder-slate-500 input-styled">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">
+                        Acompanhantes
+                    </label>
+                    <input type="number" 
+                           id="updateGuests" 
+                           name="guests"
+                           min="0"
+                           max="10"
+                           placeholder="0"
+                           class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500 text-white input-styled">
+                    <div class="text-xs text-slate-500 mt-2">
+                        Inclua familiares ou amigos que virão com você
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">
+                        Comentário (Opcional)
+                    </label>
+                    <textarea id="updateComment" 
+                              name="comment"
+                              rows="3"
+                              placeholder="Alguma observação para o organizador?"
+                              class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500 text-white placeholder-slate-500 resize-none input-styled"></textarea>
+                </div>
+                
+                <div class="flex gap-4 pt-4">
+                    <button type="button" onclick="closeModal()" 
+                            class="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium">
+                        Cancelar
+                    </button>
+                    <button type="submit" 
+                            class="flex-1 btn-primary py-3 rounded-lg font-medium">
+                        <i class="fas fa-save mr-2"></i>
+                        Salvar Alterações
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // Variáveis globais
+        let myRSVPs = [];
+        let filteredRSVPs = [];
+        let currentTab = 'all';
+        let rsvpToCancel = null;
+        let rsvpToUpdate = null;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Atualizar contadores
+            updateEventCounters();
+            
+            // Carregar confirmações
+            loadMyRSVPs();
+            
+            // Atualizar estatísticas
+            updateStats();
+        });
+        
+        function loadMyRSVPs() {
+            const userId = getUserId();
+            const allRSVPs = DB.getUserRSVPs(userId);
+            
+            // Agrupar RSVPs por evento
+            const eventMap = new Map();
+            
+            allRSVPs.forEach(rsvp => {
+                const event = DB.getEventById(rsvp.event_id);
+                if (event) {
+                    eventMap.set(event.id, {
+                        event: event,
+                        rsvp: rsvp
+                    });
+                }
+            });
+            
+            // Converter para array e ordenar por data do evento
+            myRSVPs = Array.from(eventMap.values()).sort((a, b) => {
+                const dateA = new Date(`${a.event.date}T${a.event.time}`);
+                const dateB = new Date(`${b.event.date}T${b.event.time}`);
+                return dateB - dateA; // Mais recentes primeiro
+            });
+            
+            applyFilters();
+        }
+        
+        function applyFilters() {
+            const now = new Date();
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            filteredRSVPs = myRSVPs.filter(({event, rsvp}) => {
+                const eventDate = new Date(`${event.date}T${event.time}`);
+                const isPast = eventDate < now;
+                const isToday = eventDate.toDateString() === now.toDateString();
+                const isUpcoming = !isPast && !isToday;
+                
+                switch(currentTab) {
+                    case 'all':
+                        return true;
+                    case 'upcoming':
+                        return isUpcoming;
+                    case 'today':
+                        return isToday;
+                    case 'past':
+                        return isPast;
+                    default:
+                        return true;
+                }
+            });
+            
+            renderRSVPs();
+        }
+        
+        function renderRSVPs() {
+            const container = document.getElementById('rsvpsList');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (filteredRSVPs.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            
+            container.innerHTML = filteredRSVPs.map(({event, rsvp}) => {
+                const eventDate = new Date(`${event.date}T${event.time}`);
+                const now = new Date();
+                const isPast = eventDate < now;
+                const isToday = eventDate.toDateString() === now.toDateString();
+                const isUpcoming = !isPast && !isToday;
+                const relativeDate = formatRelativeDate(event.date, event.time);
+                
+                // Determinar classe CSS baseada no status
+                let cardClass = 'rsvp-card';
+                if (isToday) {
+                    cardClass += ' today';
+                } else if (isUpcoming) {
+                    cardClass += ' upcoming';
+                } else {
+                    cardClass += ' past';
+                }
+                
+                // Badge de status
+                let statusBadge = '';
+                if (isToday) {
+                    statusBadge = '<span class="badge badge-today"><i class="fas fa-calendar-day"></i> Hoje</span>';
+                } else if (isUpcoming) {
+                    statusBadge = `<span class="badge badge-upcoming"><i class="fas fa-clock"></i> ${relativeDate}</span>`;
+                } else {
+                    statusBadge = '<span class="badge badge-past"><i class="fas fa-history"></i> Passado</span>';
+                }
+                
+                // Badge de visibilidade
+                let visibilityBadge = '';
+                switch(event.visibility) {
+                    case 'public':
+                        visibilityBadge = '<span class="badge badge-public"><i class="fas fa-globe"></i> Público</span>';
+                        break;
+                    case 'private':
+                        visibilityBadge = '<span class="badge badge-private"><i class="fas fa-lock"></i> Privado</span>';
+                        break;
+                    case 'invite-only':
+                        visibilityBadge = '<span class="badge badge-invite"><i class="fas fa-key"></i> Convidados</span>';
+                        break;
+                }
+                
+                // Badge de capacidade
+                let capacityBadge = '';
+                if (event.type === 'limited') {
+                    capacityBadge = `<span class="badge badge-limited"><i class="fas fa-users"></i> ${event.attendeeLimit} vagas</span>`;
+                } else {
+                    capacityBadge = '<span class="badge badge-unlimited"><i class="fas fa-infinity"></i> Ilimitado</span>';
+                }
+                
+                // Informações da confirmação do usuário
+                const myRSVPInfo = `
+                    <div class="my-rsvp-info">
+                        <div class="my-rsvp-info-header">
+                            <div class="my-rsvp-info-title">Sua Confirmação</div>
+                            <div class="text-sm text-violet-400">
+                                Confirmado em ${formatDateOnly(rsvp.created_at.split('T')[0])}
+                            </div>
+                        </div>
+                        <div class="my-rsvp-info-details">
+                            <div class="my-rsvp-info-detail">
+                                <i class="fas fa-user"></i>
+                                <span>Nome: ${rsvp.name}</span>
+                            </div>
+                            ${rsvp.guests > 0 ? `
+                                <div class="my-rsvp-info-detail">
+                                    <i class="fas fa-users"></i>
+                                    <span>Acompanhantes: ${rsvp.guests}</span>
+                                </div>
+                            ` : ''}
+                            ${rsvp.comment ? `
+                                <div class="my-rsvp-info-detail">
+                                    <i class="fas fa-comment"></i>
+                                    <span>Comentário: "${rsvp.comment}"</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                
+                return `
+                    <div class="${cardClass} mb-6">
+                        <div class="rsvp-header">
+                            <div>
+                                <div class="flex flex-wrap gap-2 mb-2">
+                                    ${statusBadge}
+                                    ${visibilityBadge}
+                                    ${capacityBadge}
+                                </div>
+                                <h3 class="rsvp-title">${event.name}</h3>
+                                <p class="rsvp-organizer">
+                                    <i class="fas fa-user-circle"></i>
+                                    Organizado por ${getInitials(event.userId)} (ID: ${event.userId.substring(0, 8)}...)
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-2xl font-bold text-violet-400 mb-1">
+                                    ${formatDateOnly(event.date)}
+                                </div>
+                                <div class="text-xs text-slate-500">
+                                    ${formatTimeOnly(event.time)}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        ${event.description ? `
+                            <p class="text-slate-400 text-sm mb-4">${event.description.substring(0, 150)}${event.description.length > 150 ? '...' : ''}</p>
+                        ` : ''}
+                        
+                        <div class="rsvp-details">
+                            <div class="rsvp-detail">
+                                <i class="fas fa-calendar text-violet-400"></i>
+                                <span>${formatDateOnly(event.date)}</span>
+                            </div>
+                            <div class="rsvp-detail">
+                                <i class="fas fa-clock text-violet-400"></i>
+                                <span>${formatTimeOnly(event.time)}</span>
+                            </div>
+                            <div class="rsvp-detail">
+                                <i class="fas fa-map-marker-alt text-violet-400"></i>
+                                <span>${event.locationType === 'none' ? 'Local a definir' : 
+                                      event.locationType === 'maps' ? 'Ver no mapa' : 
+                                      (event.location || 'Sem local').substring(0, 30)}${(event.location || '').length > 30 ? '...' : ''}</span>
+                            </div>
+                        </div>
+                        
+                        ${myRSVPInfo}
+                        
+                        <div class="rsvp-actions">
+                            <a href="event.html?id=${event.id}" 
+                               class="action-button view">
+                                <i class="fas fa-eye"></i>
+                                Ver Evento
+                            </a>
+                            ${!isPast ? `
+                                <button onclick="showUpdateModal('${event.id}', '${rsvp.id}')" 
+                                        class="action-button update">
+                                    <i class="fas fa-edit"></i>
+                                    Atualizar
+                                </button>
+                                <button onclick="showCancelModal('${event.id}', '${event.name}')" 
+                                        class="action-button cancel">
+                                    <i class="fas fa-times"></i>
+                                    Cancelar
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function switchTab(tabName) {
+            currentTab = tabName;
+            
+            // Atualizar classes das tabs
+            document.querySelectorAll('.tab-button').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.tab === tabName) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            applyFilters();
+        }
+        
+        function updateStats() {
+            const now = new Date();
+            let upcomingCount = 0;
+            let totalGuests = 0;
+            
+            myRSVPs.forEach(({event, rsvp}) => {
+                const eventDate = new Date(`${event.date}T${event.time}`);
+                if (eventDate > now) {
+                    upcomingCount++;
+                }
+                totalGuests += rsvp.guests || 0;
+            });
+            
+            // Total de confirmações
+            document.getElementById('totalRSVPs').textContent = myRSVPs.length;
+            
+            // Próximos eventos
+            document.getElementById('upcomingRSVPs').textContent = upcomingCount;
+            
+            // Total de acompanhantes
+            document.getElementById('totalGuests').textContent = totalGuests;
+            
+            // Média de acompanhantes por evento
+            const avgGuests = myRSVPs.length > 0 ? (totalGuests / myRSVPs.length).toFixed(1) : '0.0';
+            document.getElementById('avgGuests').textContent = avgGuests;
+        }
+        
+        function showCancelModal(eventId, eventName) {
+            rsvpToCancel = eventId;
+            document.getElementById('cancelEventTitle').textContent = eventName;
+            document.getElementById('cancelModal').classList.remove('hidden');
+        }
+        
+        function confirmCancel() {
+            if (rsvpToCancel) {
+                const userId = getUserId();
+                DB.removeRSVP(rsvpToCancel, userId);
+                showNotification('Confirmação cancelada com sucesso!', 'success');
+                closeModal();
+                
+                // Recarregar confirmações
+                loadMyRSVPs();
+                updateStats();
+                updateEventCounters();
+            }
+        }
+        
+        function showUpdateModal(eventId, rsvpId) {
+            rsvpToUpdate = { eventId, rsvpId };
+            
+            // Encontrar o RSVP
+            const rsvpData = myRSVPs.find(({event, rsvp}) => 
+                event.id === eventId && rsvp.id === rsvpId
+            );
+            
+            if (rsvpData) {
+                const { rsvp } = rsvpData;
+                
+                // Preencher formulário
+                document.getElementById('updateName').value = rsvp.name;
+                document.getElementById('updateEmail').value = rsvp.email || '';
+                document.getElementById('updateGuests').value = rsvp.guests || 0;
+                document.getElementById('updateComment').value = rsvp.comment || '';
+                
+                document.getElementById('updateModal').classList.remove('hidden');
+            }
+        }
+        
+        // Configurar formulário de atualização
+        document.addEventListener('DOMContentLoaded', function() {
+            const updateForm = document.getElementById('updateRSVPForm');
+            if (updateForm) {
+                updateForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    submitUpdate();
+                });
+            }
+        });
+        
+        function submitUpdate() {
+            if (!rsvpToUpdate) return;
+            
+            const name = document.getElementById('updateName').value.trim();
+            const email = document.getElementById('updateEmail').value.trim();
+            const guests = parseInt(document.getElementById('updateGuests').value) || 0;
+            const comment = document.getElementById('updateComment').value.trim();
+            
+            if (!name) {
+                showNotification('Por favor, informe seu nome', 'error');
+                return;
+            }
+            
+            // Encontrar o RSVP original
+            const originalRSVP = myRSVPs.find(({event, rsvp}) => 
+                event.id === rsvpToUpdate.eventId && rsvp.id === rsvpToUpdate.rsvpId
+            );
+            
+            if (originalRSVP) {
+                const updatedRSVP = {
+                    ...originalRSVP.rsvp,
+                    name: name,
+                    email: email || null,
+                    guests: guests,
+                    comment: comment || null
+                };
+                
+                DB.addRSVP(updatedRSVP);
+                
+                // Atualizar nome do usuário
+                DB.updateUserName(name);
+                
+                showNotification('Confirmação atualizada com sucesso!', 'success');
+                closeModal();
+                
+                // Recarregar confirmações
+                loadMyRSVPs();
+            }
+        }
+        
+        function exportMyRSVPs() {
+            if (myRSVPs.length === 0) {
+                showNotification('Não há confirmações para exportar', 'warning');
+                return;
+            }
+            
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Evento,Organizador,Data,Hora,Local,Tipo,Seu Nome,Seu E-mail,Acompanhantes,Comentário,Confirmado Em\n";
+            
+            myRSVPs.forEach(({event, rsvp}) => {
+                const row = [
+                    `"${event.name}"`,
+                    `"${event.userId.substring(0, 8)}..."`,
+                    `"${formatDateOnly(event.date)}"`,
+                    `"${formatTimeOnly(event.time)}"`,
+                    `"${event.location || ''}"`,
+                    event.type,
+                    `"${rsvp.name}"`,
+                    `"${rsvp.email || ''}"`,
+                    rsvp.guests || 0,
+                    `"${rsvp.comment || ''}"`,
+                    `"${formatDate(rsvp.created_at.split('T')[0], rsvp.created_at.split('T')[1])}"`
+                ].join(',');
+                
+                csvContent += row + "\n";
+            });
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `minhas_confirmacoes_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification('Confirmações exportadas com sucesso!', 'success');
+        }
+        
+        function closeModal() {
+            document.getElementById('cancelModal').classList.add('hidden');
+            document.getElementById('updateModal').classList.add('hidden');
+            rsvpToCancel = null;
+            rsvpToUpdate = null;
+        }
+    </script>
+</body>
+
+</html>

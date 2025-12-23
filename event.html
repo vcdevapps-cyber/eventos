@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark-theme">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evento - Proclame</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/custom.css">
+    <style>
+        .event-header {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.8));
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .attendee-avatar {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            color: white;
+            font-size: 1.25rem;
+        }
+        
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .comment-bubble {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 1rem;
+            border-top-left-radius: 0;
+            position: relative;
+            padding: 1rem;
+            margin-left: 0.5rem;
+        }
+        
+        .comment-bubble::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -0.5rem;
+            width: 0;
+            height: 0;
+            border-right: 0.5rem solid rgba(30, 41, 59, 0.7);
+            border-top: 0.5rem solid transparent;
+            border-bottom: 0.5rem solid transparent;
+        }
+        
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            border-bottom: 2px solid transparent;
+            color: #94a3b8;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .tab-button.active {
+            color: #8b5cf6;
+            border-bottom-color: #8b5cf6;
+            background: rgba(139, 92, 246, 0.1);
+        }
+        
+        .tab-button:hover:not(.active) {
+            color: #cbd5e1;
+            border-bottom-color: #475569;
+        }
+        
+        .stats-card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .countdown-timer {
+            font-family: 'Courier New', monospace;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #8b5cf6;
+            text-align: center;
+            padding: 1rem;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 1rem;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+        
+        .share-button {
+            transition: all 0.3s;
+        }
+        
+        .share-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+
+<body class="bg-slate-900 text-slate-100 min-h-screen font-['Inter']">
+
+    <!-- Navbar -->
+    <nav class="navbar-glass sticky top-0 z-40">
+        <div class="container mx-auto px-4">
+            <div class="flex h-16 items-center justify-between">
+                <div class="flex items-center gap-8">
+                    <a href="index.html" class="text-2xl font-bold text-violet-400 flex items-center gap-2">
+                        <i class="fas fa-bullhorn"></i>
+                        <span>Proclame</span>
+                    </a>
+                    
+                    <div class="hidden md:flex items-center gap-6">
+                        <a href="index.html" class="text-slate-300 hover:text-violet-400 transition-colors flex items-center gap-2">
+                            <i class="fas fa-home"></i>
+                            Início
+                        </a>
+                        <a href="discover.html" class="text-slate-300 hover:text-violet-400 transition-colors flex items-center gap-2">
+                            <i class="fas fa-compass"></i>
+                            Descobrir
+                            <span class="public-events-count bg-violet-500 text-xs px-2 py-0.5 rounded-full"></span>
+                        </a>
+                        <a href="my-events.html" class="text-slate-300 hover:text-violet-400 transition-colors flex items-center gap-2">
+                            <i class="fas fa-calendar-alt"></i>
+                            Meus Eventos
+                            <span class="my-events-count bg-violet-500 text-xs px-2 py-0.5 rounded-full"></span>
+                        </a>
+                        <a href="create.html" class="text-slate-300 hover:text-violet-400 transition-colors flex items-center gap-2">
+                            <i class="fas fa-plus-circle"></i>
+                            Criar
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTheme()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors" title="Alternar tema">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <a href="create.html" class="btn-primary px-6 py-2 rounded-lg font-medium text-white flex items-center gap-2">
+                        <i class="fas fa-plus"></i>
+                        Criar Evento
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Conteúdo será carregado via JavaScript -->
+        <div id="eventContent" class="min-h-screen">
+            <div class="container mx-auto px-4 py-12">
+                <div class="text-center py-20">
+                    <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-800 mb-6">
+                        <i class="fas fa-calendar-alt text-3xl text-slate-500"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-300 mb-3">Carregando evento...</h2>
+                    <p class="text-slate-500">Por favor, aguarde enquanto buscamos os detalhes do evento.</p>
+                    <div class="mt-6">
+                        <div class="skeleton w-64 h-4 mx-auto mb-2"></div>
+                        <div class="skeleton w-48 h-4 mx-auto"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 py-8">
+        <div class="container mx-auto px-4 text-center text-slate-500">
+            <p>&copy; 2024 Proclame. Evento gerenciado pela plataforma Proclame.</p>
+            <p class="text-sm mt-2">Para dúvidas sobre este evento, entre em contato com o organizador.</p>
+        </div>
+    </footer>
+
+    <!-- Modal para código de convite -->
+    <div id="inviteModal" class="modal-overlay hidden">
+        <div class="bg-slate-800 rounded-2xl p-8 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-white">Código de Acesso</h3>
+                <button onclick="closeModal()" class="p-2 hover:bg-slate-700 rounded-lg transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-violet-500/20 text-violet-400 text-2xl mb-4">
+                    <i class="fas fa-key"></i>
+                </div>
+                <p class="text-slate-400 mb-4">
+                    Este evento é somente para convidados. Informe o código de acesso para confirmar presença.
+                </p>
+                
+                <div id="inviteCodeDisplay" class="text-2xl font-bold text-violet-400 bg-slate-900 py-3 px-6 rounded-lg mb-6">
+                    CARREGANDO...
+                </div>
+                
+                <div class="flex gap-4">
+                    <input type="text" 
+                           id="inviteCodeInput" 
+                           placeholder="Digite o código"
+                           class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500 text-white">
+                    <button onclick="verifyInviteCode()" class="btn-primary px-6 py-3 rounded-lg font-medium">
+                        Verificar
+                    </button>
+                </div>
+                
+                <div id="inviteError" class="text-red-400 text-sm mt-3 hidden">
+                    Código inválido. Tente novamente.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para compartilhar -->
+    <div id="shareModal" class="modal-overlay hidden">
+        <div class="bg-slate-800 rounded-2xl p-8 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-white">Compartilhar Evento</h3>
+                <button onclick="closeModal()" class="p-2 hover:bg-slate-700 rounded-lg transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Link do Evento</label>
+                    <div class="flex gap-2">
+                        <input type="text" 
+                               id="shareLink" 
+                               readonly
+                               class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white truncate">
+                        <button onclick="copyShareLink()" 
+                                class="px-4 py-3 bg-violet-600 hover:bg-violet-700 rounded-lg font-medium whitespace-nowrap">
+                            Copiar
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <div id="qrCodeContainer" class="inline-block p-4 bg-white rounded-lg mb-4">
+                        <!-- QR Code será gerado aqui -->
+                        <div class="w-48 h-48 flex items-center justify-center text-slate-400">
+                                            <i class="fas fa-qrcode text-4xl"></i>
+                        </div>
+                    </div>
+                    <p class="text-slate-400 text-sm">Escaneie o QR Code para acessar o evento</p>
+                </div>
+                
+                <div>
+                    <h4 class="font-medium text-slate-300 mb-3">Compartilhar em:</h4>
+                    <div class="flex justify-center gap-4">
+                        <button onclick="shareWhatsApp()" 
+                                class="p-3 bg-emerald-500 hover:bg-emerald-600 rounded-full text-white transition-colors">
+                            <i class="fab fa-whatsapp text-xl"></i>
+                        </button>
+                        <button onclick="shareFacebook()" 
+                                class="p-3 bg-blue-600 hover:bg-blue-700 rounded-full text-white transition-colors">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </button>
+                        <button onclick="shareTwitter()" 
+                                class="p-3 bg-sky-500 hover:bg-sky-600 rounded-full text-white transition-colors">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </button>
+                        <button onclick="shareEmail()" 
+                                class="p-3 bg-slate-600 hover:bg-slate-700 rounded-full text-white transition-colors">
+                            <i class="fas fa-envelope text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para editar evento -->
+    <div id="editModal" class="modal-overlay hidden">
+        <div class="bg-slate-800 rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-white">Editar Evento</h3>
+                <button onclick="closeModal()" class="p-2 hover:bg-slate-700 rounded-lg transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="editEventForm" class="space-y-6">
+                <!-- Formulário de edição será carregado aqui -->
+                <div class="text-center py-12">
+                    <i class="fas fa-spinner fa-spin text-3xl text-slate-500 mb-4"></i>
+                    <p class="text-slate-400">Carregando formulário de edição...</p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // Variáveis globais
+        let currentEvent = null;
+        let currentUserRSVP = null;
+        let isOwner = false;
+        let currentTab = 'details';
+        let countdownInterval = null;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Atualizar contadores
+            updateEventCounters();
+            
+            // Carregar evento
+            loadEvent();
+        });
+        
+        function loadEvent() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = urlParams.get('id');
+            
+            if (!eventId) {
+                showError('ID do evento não fornecido');
+                return;
+            }
+            
+            // Buscar evento
+            currentEvent = DB.getEventById(eventId);
+            
+            if (!currentEvent) {
+                showError('Evento não encontrado');
+                return;
+            }
+            
+            // Verificar se é proprietário
+            isOwner = currentEvent.userId === getUserId();
+            
+            // Verificar se usuário já confirmou presença
+            const userRSVPs = DB.getUserRSVPs(getUserId());
+            currentUserRSVP = userRSVPs.find(rsvp => rsvp.event_id === eventId);
+            
+            // Verificar se é evento somente para convidados
+            if (currentEvent.visibility === 'invite-only' && !isOwner && !currentUserRSVP) {
+                showInviteModal();
+            } else {
+                renderEvent();
+            }
+        }
+        
+        function renderEvent() {
+            const container = document.getElementById('eventContent');
+            const rsvps = DB.getRSVPs(currentEvent.id);
+            const attendeesCount = DB.getEventAttendeeCount(currentEvent.id);
+            const isLimited = currentEvent.type === 'limited';
+            const isFull = isLimited && attendeesCount >= currentEvent.attendeeLimit;
+            const relativeDate = formatRelativeDate(currentEvent.date, currentEvent.time);
+            const eventDateTime = new Date(`${currentEvent.date}T${currentEvent.time}`);
+            const now = new Date();
+            const isPastEvent = eventDateTime < now;
+            
+            // Atualizar título da página
+            document.title = `${currentEvent.name} - Proclame`;
+            
+            // Preparar informações de localização
+            let locationHtml = '';
+            if (currentEvent.locationType === 'maps') {
+                locationHtml = `
+                    <a href="${currentEvent.location}" 
+                       target="_blank" 
+                       class="text-violet-400 hover:text-violet-300 hover:underline flex items-center gap-2">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Ver no Google Maps</span>
+                        <i class="fas fa-external-link-alt text-xs"></i>
+                    </a>
+                `;
+            } else if (currentEvent.locationType === 'none') {
+                locationHtml = `
+                    <div class="flex items-center gap-2 text-slate-400">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Local a ser definido</span>
+                    </div>
+                `;
+            } else {
+                locationHtml = `
+                    <div class="flex items-center gap-2 text-slate-300">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>${currentEvent.location}</span>
+                    </div>
+                `;
+            }
+            
+            // Preparar badges de status
+            const statusBadges = [];
+            
+            if (isPastEvent) {
+                statusBadges.push('<span class="status-badge bg-slate-700 text-slate-300">⏰ Encerrado</span>');
+            } else if (isFull) {
+                statusBadges.push('<span class="status-badge bg-red-500/20 text-red-400">🔴 Lotado</span>');
+            }
+            
+            if (currentEvent.visibility === 'private') {
+                statusBadges.push('<span class="status-badge bg-amber-500/20 text-amber-400">🔒 Privado</span>');
+            } else if (currentEvent.visibility === 'invite-only') {
+                statusBadges.push('<span class="status-badge bg-purple-500/20 text-purple-400">📧 Convidados</span>');
+            } else {
+                statusBadges.push('<span class="status-badge bg-emerald-500/20 text-emerald-400">🌍 Público</span>');
+            }
+            
+            if (isLimited) {
+                statusBadges.push(`<span class="status-badge bg-violet-500/20 text-violet-400">🎯 ${currentEvent.attendeeLimit} vagas</span>`);
+            } else {
+                statusBadges.push('<span class="status-badge bg-blue-500/20 text-blue-400">∞ Ilimitado</span>');
+            }
+            
+            if (isOwner) {
+                statusBadges.push('<span class="status-badge bg-violet-500/20 text-violet-400">👑 Organizador</span>');
+            }
+            
+            // Renderizar página
+            container.innerHTML = `
+                <!-- Cabeçalho do Evento -->
+                <div class="event-header py-8 mb-8">
+                    <div class="container mx-auto px-4">
+                        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+                            <div class="flex-1">
+                                <div class="flex flex-wrap gap-2 mb-4">
+                                    ${statusBadges.join('')}
+                                </div>
+                                <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">
+                                    ${currentEvent.name}
+                                </h1>
+                                ${currentEvent.description ? `
+                                    <p class="text-slate-400 text-lg max-w-3xl">
+                                        ${currentEvent.description}
+                                    </p>
+                                ` : ''}
+                            </div>
+                            
+                            <div class="flex flex-wrap gap-3">
+                                ${isOwner ? `
+                                    <button onclick="showEditModal()" 
+                                            class="px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl font-medium flex items-center gap-2">
+                                        <i class="fas fa-edit"></i>
+                                        Editar
+                                    </button>
+                                ` : ''}
+                                
+                                <button onclick="showShareModal()" 
+                                        class="px-6 py-3 bg-violet-600 hover:bg-violet-700 rounded-xl font-medium flex items-center gap-2 share-button">
+                                    <i class="fas fa-share-alt"></i>
+                                    Compartilhar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="container mx-auto px-4">
+                    <div class="grid lg:grid-cols-3 gap-8">
+                        <!-- Coluna Principal -->
+                        <div class="lg:col-span-2">
+                            <!-- Tabs de Navegação -->
+                            <div class="flex border-b border-slate-800 mb-8 overflow-x-auto">
+                                <div class="tab-button ${currentTab === 'details' ? 'active' : ''}" 
+                                     onclick="switchTab('details')">
+                                    <i class="fas fa-info-circle mr-2"></i>
+                                    Detalhes
+                                </div>
+                                <div class="tab-button ${currentTab === 'attendees' ? 'active' : ''}" 
+                                     onclick="switchTab('attendees')">
+                                    <i class="fas fa-users mr-2"></i>
+                                    Participantes
+                                    <span class="ml-2 bg-slate-700 text-slate-300 text-xs px-2 py-0.5 rounded-full">
+                                        ${formatNumber(attendeesCount)}
+                                    </span>
+                                </div>
+                                ${isOwner ? `
+                                    <div class="tab-button ${currentTab === 'manage' ? 'active' : ''}" 
+                                         onclick="switchTab('manage')">
+                                        <i class="fas fa-cog mr-2"></i>
+                                        Gerenciar
+                                    </div>
+                                ` : ''}
+                            </div>
+                            
+                            <!-- Conteúdo das Tabs -->
+                            <div id="tabContent">
+                                ${renderTabContent()}
+                            </div>
+                        </div>
+                        
+                        <!-- Sidebar -->
+                        <div class="lg:col-span-1 space-y-6">
+                            <!-- Contador Regressivo -->
+                            ${!isPastEvent ? `
+                                <div class="countdown-timer mb-2" id="countdownTimer">
+                                    ${renderCountdown()}
+                                </div>
+                            ` : ''}
+                            
+                            <!-- Cartão RSVP -->
+                            <div class="bg-slate-800/50 rounded-2xl border border-slate-700/50 p-6">
+                                ${renderRSVPCard()}
+                            </div>
+                            
+                            <!-- Informações Rápidas -->
+                            <div class="bg-slate-800/50 rounded-2xl border border-slate-700/50 p-6">
+                                <h3 class="font-bold text-white mb-4 flex items-center gap-2">
+                                    <i class="fas fa-calendar-alt text-violet-400"></i>
+                                    Informações
+                                </h3>
+                                
+                                <div class="space-y-4">
+                                    <div>
+                                        <div class="text-sm text-slate-500 mb-1">Data e Hora</div>
+                                        <div class="text-slate-300 font-medium">
+                                            ${formatDate(currentEvent.date, currentEvent.time)}
+                                        </div>
+                                        ${!isPastEvent ? `
+                                            <div class="text-xs ${relativeDate.includes('Hoje') ? 'text-emerald-400' : 'text-amber-400'} mt-1">
+                                                <i class="fas fa-clock"></i> ${relativeDate}
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                    
+                                    <div>
+                                        <div class="text-sm text-slate-500 mb-1">Localização</div>
+                                        ${locationHtml}
+                                    </div>
+                                    
+                                    <div>
+                                        <div class="text-sm text-slate-500 mb-1">Organizador</div>
+                                        <div class="flex items-center gap-3">
+                                            <div class="attendee-avatar avatar-sm">
+                                                ${getInitials(getUserProfile().name)}
+                                            </div>
+                                            <span class="text-slate-300">${getUserProfile().name}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Estatísticas -->
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="stats-card">
+                                    <div class="text-2xl font-bold text-white mb-1">
+                                        ${formatNumber(attendeesCount)}
+                                    </div>
+                                    <div class="text-sm text-slate-400">Confirmados</div>
+                                </div>
+                                
+                                <div class="stats-card">
+                                    <div class="text-2xl font-bold text-white mb-1">
+                                        ${isLimited ? formatNumber(currentEvent.attendeeLimit) : '∞'}
+                                    </div>
+                                    <div class="text-sm text-slate-400">Capacidade</div>
+                                </div>
+                                
+                                ${currentEvent.duration ? `
+                                    <div class="stats-card">
+                                        <div class="text-2xl font-bold text-white mb-1">
+                                            ${currentEvent.duration.hours || 0}h ${currentEvent.duration.minutes || 0}m
+                                        </div>
+                                        <div class="text-sm text-slate-400">Duração</div>
+                                    </div>
+                                ` : ''}
+                                
+                                <div class="stats-card">
+                                    <div class="text-2xl font-bold text-white mb-1">
+                                        ${isLimited ? 
+                                            `${Math.round((attendeesCount / currentEvent.attendeeLimit) * 100)}%` : 
+                                            '100%'}
+                                    </div>
+                                    <div class="text-sm text-slate-400">Ocupação</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Iniciar contador regressivo
+            if (!isPastEvent) {
+                startCountdown();
+            }
+            
+            // Configurar listeners
+            setupEventListeners();
+        }
+        
+        function renderTabContent() {
+            const rsvps = DB.getRSVPs(currentEvent.id);
+            const attendeesCount = DB.getEventAttendeeCount(currentEvent.id);
+            
+            switch(currentTab) {
+                case 'details':
+                    return renderDetailsTab();
+                case 'attendees':
+                    return renderAttendeesTab();
+                case 'manage':
+                    return isOwner ? renderManageTab() : '';
+                default:
+                    return renderDetailsTab();
+            }
+        }
+        
+        function renderDetailsTab() {
+            let locationHtml = '';
+            if (currentEvent.locationType === 'maps') {
+                locationHtml = `
+                    <div class="mb-6">
+                        <h3 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                            <i class="fas fa-map-marker-alt text-violet-400"></i>
+                            Localização
+                        </h3>
+                        <a href="${currentEvent.location}" 
+                           target="_blank" 
+                           class="inline-flex items-center gap-2 px-4 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors">
+                            <i class="fas fa-external-link-alt"></i>
+                            Abrir no Google Maps
+                        </a>
+                        <p class="text-slate-400 text-sm mt-2">
+                            Clique no link acima para ver a localização exata no mapa.
+                        </p>
+                    </div>
+                `;
+            } else if (currentEvent.locationType === 'none') {
+                locationHtml = `
+                    <div class="mb-6">
+                        <h3 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                            <i class="fas fa-map-marker-alt text-violet-400"></i>
+                            Localização
+                        </h3>
+                        <div class="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-question-circle text-amber-400 text-xl"></i>
+                                <div>
+                                    <p class="text-slate-300">O local será informado posteriormente pelo organizador.</p>
+                                    <p class="text-slate-500 text-sm mt-1">Fique atento às atualizações!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                locationHtml = `
+                    <div class="mb-6">
+                        <h3 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                            <i class="fas fa-map-marker-alt text-violet-400"></i>
+                            Localização
+                        </h3>
+                        <div class="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
+                            <p class="text-slate-300">${currentEvent.location}</p>
+                            ${currentEvent.description && currentEvent.description.includes('online') ? `
+                                <p class="text-emerald-400 text-sm mt-2">
+                                    <i class="fas fa-video"></i> Este é um evento online
+                                </p>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            return `
+                <div class="space-y-8">
+                    ${currentEvent.description ? `
+                        <div>
+                            <h3 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                                <i class="fas fa-align-left text-violet-400"></i>
+                                Descrição
+                            </h3>
+                            <div class="bg-slate-800/30 rounded-xl p-6 border border-slate-700/30">
+                                <p class="text-slate-300 whitespace-pre-line">${currentEvent.description}</p>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${locationHtml}
+                    
+                    <!-- Informações Adicionais -->
+                    <div>
+                        <h3 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                            <i class="fas fa-info-circle text-violet-400"></i>
+                            Informações Adicionais
+                        </h3>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="bg-slate-800/30 rounded-xl p-4 border border-slate-700/30">
+                                <div class="text-sm text-slate-500 mb-1">Criado em</div>
+                                <div class="text-slate-300">
+                                    ${formatDateOnly(currentEvent.createdAt.split('T')[0])}
+                                </div>
+                            </div>
+                            
+                            <div class="bg-slate-800/30 rounded-xl p-4 border border-slate-700/30">
+                                <div class="text-sm text-slate-500 mb-1">ID do Evento</div>
+                                <div class="text-slate-300 font-mono text-sm truncate">
+                                    ${currentEvent.id}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderAttendeesTab() {
+            const rsvps = DB.getRSVPs(currentEvent.id);
+            const attendeesCount = DB.getEventAttendeeCount(currentEvent.id);
+            
+            if (rsvps.length === 0) {
+                return `
+                    <div class="text-center py-12">
+                        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-800 mb-6">
+                            <i class="fas fa-users text-3xl text-slate-500"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-300 mb-2">Nenhum participante ainda</h3>
+                        <p class="text-slate-500 mb-8">Seja o primeiro a confirmar presença!</p>
+                        ${!currentUserRSVP ? renderRSVPForm() : ''}
+                    </div>
+                `;
+            }
+            
+            // Agrupar por data de confirmação (hoje, ontem, mais antigo)
+            const today = new Date().toDateString();
+            const yesterday = new Date(Date.now() - 86400000).toDateString();
+            
+            const groups = {
+                hoje: [],
+                ontem: [],
+                antigo: []
+            };
+            
+            rsvps.forEach(rsvp => {
+                const rsvpDate = new Date(rsvp.created_at).toDateString();
+                if (rsvpDate === today) {
+                    groups.hoje.push(rsvp);
+                } else if (rsvpDate === yesterday) {
+                    groups.ontem.push(rsvp);
+                } else {
+                    groups.antigo.push(rsvp);
+                }
+            });
+            
+            return `
+                <div class="space-y-8">
+                    <!-- Estatísticas -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="stats-card">
+                            <div class="text-2xl font-bold text-white mb-1">${rsvps.length}</div>
+                            <div class="text-sm text-slate-400">Confirmações</div>
+                        </div>
+                        <div class="stats-card">
+                            <div class="text-2xl font-bold text-white mb-1">
+                                ${rsvps.reduce((sum, r) => sum + (r.guests || 0), 0)}
+                            </div>
+                            <div class="text-sm text-slate-400">Acompanhantes</div>
+                        </div>
+                        <div class="stats-card">
+                            <div class="text-2xl font-bold text-white mb-1">${attendeesCount}</div>
+                            <div class="text-sm text-slate-400">Total de Pessoas</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Lista de Participantes -->
+                    <div class="space-y-8">
+                        ${Object.entries(groups).map(([groupName, groupRSVPs]) => {
+                            if (groupRSVPs.length === 0) return '';
+                            
+                            let groupTitle = '';
+                            switch(groupName) {
+                                case 'hoje': groupTitle = 'Hoje'; break;
+                                case 'ontem': groupTitle = 'Ontem'; break;
+                                default: groupTitle = 'Anteriormente';
+                            }
+                            
+                            return `
+                                <div>
+                                    <h3 class="text-lg font-bold text-white mb-4">
+                                        ${groupTitle} <span class="text-slate-500 text-sm">(${groupRSVPs.length})</span>
+                                    </h3>
+                                    <div class="grid md:grid-cols-2 gap-4">
+                                        ${groupRSVPs.map(rsvp => `
+                                            <div class="bg-slate-800/30 rounded-xl p-4 border border-slate-700/30">
+                                                <div class="flex items-center justify-between">
+                                                    <div class="flex items-center gap-3">
+                                                        <div class="attendee-avatar">
+                                                            ${getInitials(rsvp.name)}
+                                                        </div>
+                                                        <div>
+                                                            <div class="font-medium text-white">${rsvp.name}</div>
+                                                            ${rsvp.email ? `
+                                                                <div class="text-slate-400 text-sm">${rsvp.email}</div>
+                                                            ` : ''}
+                                                        </div>
+                                                    </div>
+                                                    ${rsvp.guests > 0 ? `
+                                                        <span class="bg-violet-500/20 text-violet-300 text-xs px-2 py-1 rounded-full">
+                                                            +${rsvp.guests}
+                                                        </span>
+                                                    ` : ''}
+                                                </div>
+                                                ${rsvp.comment ? `
+                                                    <div class="mt-3 comment-bubble">
+                                                        <p class="text-slate-300 text-sm">${rsvp.comment}</p>
+                                                    </div>
+                                                ` : ''}
+                                                <div class="text-xs text-slate-500 mt-3">
+                                                    Confirmado em ${formatDateOnly(rsvp.created_at.split('T')[0])}
+                                                    às ${formatTimeOnly(rsvp.created_at.split('T')[1])}
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderManageTab() {
+            const rsvps = DB.getRSVPs(currentEvent.id);
+            const attendeesCount = DB.getEventAttendeeCount(currentEvent.id);
+            
+            return `
+                <div class="space-y-8">
+                    <div class="bg-slate-800/30 rounded-xl p-6 border border-slate-700/30">
+                        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fas fa-chart-bar text-violet-400"></i>
+                            Estatísticas do Evento
+                        </h3>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                            <div class="stats-card">
+                                <div class="text-2xl font-bold text-white mb-1">${rsvps.length}</div>
+                                <div class="text-sm text-slate-400">Confirmações</div>
+                            </div>
+                            <div class="stats-card">
+                                <div class="text-2xl font-bold text-white mb-1">${attendeesCount}</div>
+                                <div class="text-sm text-slate-400">Total Pessoas</div>
+                            </div>
+                            <div class="stats-card">
+                                <div class="text-2xl font-bold text-white mb-1">
+                                    ${currentEvent.type === 'limited' ? 
+                                        `${Math.round((attendeesCount / currentEvent.attendeeLimit) * 100)}%` : 
+                                        '100%'}
+                                </div>
+                                <div class="text-sm text-slate-400">Ocupação</div>
+                            </div>
+                            <div class="stats-card">
+                                <div class="text-2xl font-bold text-white mb-1">
+                                    ${Math.round(rsvps.reduce((sum, r) => sum + (r.guests || 0), 0) / Math.max(rsvps.length, 1) * 10) / 10}
+                                </div>
+                                <div class="text-sm text-slate-400">Média Acomp.</div>
+                            </div>
+                        </div>
+                        
+                        ${currentEvent.type === 'limited' ? `
+                            <div class="mb-6">
+                                <div class="flex justify-between text-sm text-slate-400 mb-2">
+                                    <span>Progresso de Vagas</span>
+                                    <span>${attendeesCount} / ${currentEvent.attendeeLimit}</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill bg-violet-500" 
+                                         style="width: ${(attendeesCount / currentEvent.attendeeLimit) * 100}%">
+                                    </div>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <!-- Ações do Organizador -->
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-slate-800/30 rounded-xl p-6 border border-slate-700/30">
+                            <h3 class="text-lg font-bold text-white mb-4">Ações Rápidas</h3>
+                            <div class="space-y-3">
+                                <button onclick="exportAttendees()" 
+                                        class="w-full px-4 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium text-left flex items-center gap-3">
+                                    <i class="fas fa-file-export text-emerald-400"></i>
+                                    Exportar Lista
+                                </button>
+                                <button onclick="sendReminder()" 
+                                        class="w-full px-4 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium text-left flex items-center gap-3">
+                                    <i class="fas fa-bell text-amber-400"></i>
+                                    Enviar Lembrete
+                                </button>
+                                <button onclick="showShareModal()" 
+                                        class="w-full px-4 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium text-left flex items-center gap-3">
+                                    <i class="fas fa-share-alt text-violet-400"></i>
+                                    Compartilhar
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-slate-800/30 rounded-xl p-6 border border-slate-700/30">
+                            <h3 class="text-lg font-bold text-white mb-4">Configurações</h3>
+                            <div class="space-y-3">
+                                <button onclick="showEditModal()" 
+                                        class="w-full px-4 py-3 bg-violet-600 hover:bg-violet-700 rounded-lg font-medium text-left flex items-center gap-3">
+                                    <i class="fas fa-edit"></i>
+                                    Editar Evento
+                                </button>
+                                <button onclick="duplicateEvent()" 
+                                        class="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium text-left flex items-center gap-3">
+                                    <i class="fas fa-copy"></i>
+                                    Duplicar Evento
+                                </button>
+                                <button onclick="deleteEvent()" 
+                                        class="w-full px-4 py-3 bg-red-600 hover:bg-red-700 rounded-lg font-medium text-left flex items-center gap-3">
+                                    <i class="fas fa-trash"></i>
+                                    Excluir Evento
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderRSVPCard() {
+            const rsvps = DB.getRSVPs(currentEvent.id);
+            const attendeesCount = DB.getEventAttendeeCount(currentEvent.id);
+            const isLimited = currentEvent.type === 'limited';
+            const isFull = isLimited && attendeesCount >= currentEvent.attendeeLimit;
+            const eventDateTime = new Date(`${currentEvent.date}T${currentEvent.time}`);
+            const now = new Date();
+            const isPastEvent = eventDateTime < now;
+            
+            if (isPastEvent) {
+                return `
+                    <div class="text-center py-4">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-700 text-slate-400 text-2xl mb-4">
+                            <i class="fas fa-calendar-times"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">Evento Encerrado</h3>
+                        <p class="text-slate-400 text-sm">Este evento já aconteceu.</p>
+                    </div>
+                `;
+            }
+            
+            if (isFull) {
+                return `
+                    <div class="text-center py-4">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-500/20 text-red-400 text-2xl mb-4">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">Evento Lotado</h3>
+                        <p class="text-slate-400 text-sm mb-4">Não há mais vagas disponíveis.</p>
+                        <button onclick="showShareModal()" 
+                                class="w-full px-4 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium">
+                            Compartilhar
+                        </button>
+                    </div>
+                `;
+            }
+            
+            if (currentUserRSVP) {
+                return `
+                    <div class="text-center py-4">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 text-2xl mb-4">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">Presença Confirmada!</h3>
+                        <p class="text-slate-400 text-sm mb-6">
+                            ${currentUserRSVP.guests > 0 ? 
+                                `Você confirmou +${currentUserRSVP.guests} acompanhante(s)` : 
+                                'Sua presença está confirmada'}
+                        </p>
+                        
+                        <div class="space-y-3">
+                            <button onclick="updateRSVP()" 
+                                    class="w-full px-4 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium">
+                                Alterar Confirmação
+                            </button>
+                            <button onclick="cancelRSVP()" 
+                                    class="w-full px-4 py-3 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-lg font-medium">
+                                Cancelar Presença
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            return renderRSVPForm();
+        }
+        
+        function renderRSVPForm() {
+            return `
+                <h3 class="text-lg font-bold text-white mb-4">Confirmar Presença</h3>
+                <form id="rsvpForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">
+                            Seu Nome *
+                        </label>
+                        <input type="text" 
+                               id="rsvpName" 
+                               name="name" 
+                               required
+                               placeholder="Como deseja ser chamado?"
+                               class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500 text-white placeholder-slate-500 input-styled"
+                               value="${getUserProfile().name}">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">
+                            E-mail (Opcional)
+                        </label>
+                        <input type="email" 
+                               id="rsvpEmail" 
+                               name="email"
+                               placeholder="email@exemplo.com"
+                               class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500 text-white placeholder-slate-500 input-styled">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">
+                            Acompanhantes
+                        </label>
+                        <input type="number" 
+                               id="rsvpGuests" 
+                               name="guests"
+                               min="0"
+                               max="10"
+                               placeholder="0"
+                               class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500 text-white input-styled">
+                        <div class="text-xs text-slate-500 mt-2">
+                            Inclua familiares ou amigos que virão com você
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">
+                            Comentário (Opcional)
+                        </label>
+                        <textarea id="rsvpComment" 
+                                  name="comment"
+                                  rows="2"
+                                  placeholder="Alguma observação para o organizador?"
+                                  class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-violet-500 text-white placeholder-slate-500 resize-none input-styled"></textarea>
+                    </div>
+                    
+                    <button type="submit" 
+                            class="w-full btn-primary py-3 rounded-xl font-bold flex items-center justify-center gap-2">
+                        <i class="fas fa-check-circle"></i>
+                        Confirmar Presença
+                    </button>
+                    
+                    <p class="text-xs text-slate-500 text-center mt-4">
+                        <i class="fas fa-lock"></i> Seus dados são armazenados localmente e não serão compartilhados.
+                    </p>
+                </form>
+            `;
+        }
+        
+        function renderCountdown() {
+            const eventDateTime = new Date(`${currentEvent.date}T${currentEvent.time}`);
+            const now = new Date();
+            const diff = eventDateTime - now;
+            
+            if (diff <= 0) {
+                return '00:00:00:00';
+            }
+            
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            return `
+                <div class="flex justify-center gap-2">
+                    <div class="text-center">
+                        <div class="text-4xl">${days.toString().padStart(2, '0')}</div>
+                        <div class="text-xs text-slate-400">Dias</div>
+                    </div>
+                    <div class="text-4xl">:</div>
+                    <div class="text-center">
+                        <div class="text-4xl">${hours.toString().padStart(2, '0')}</div>
+                        <div class="text-xs text-slate-400">Horas</div>
+                    </div>
+                    <div class="text-4xl">:</div>
+                    <div class="text-center">
+                        <div class="text-4xl">${minutes.toString().padStart(2, '0')}</div>
+                        <div class="text-xs text-slate-400">Min</div>
+                    </div>
+                    <div class="text-4xl">:</div>
+                    <div class="text-center">
+                        <div class="text-4xl">${seconds.toString().padStart(2, '0')}</div>
+                        <div class="text-xs text-slate-400">Seg</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function startCountdown() {
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+            
+            countdownInterval = setInterval(() => {
+                const timer = document.getElementById('countdownTimer');
+                if (timer) {
+                    timer.innerHTML = renderCountdown();
+                }
+            }, 1000);
+        }
+        
+        function setupEventListeners() {
+            // Formulário RSVP
+            const rsvpForm = document.getElementById('rsvpForm');
+            if (rsvpForm) {
+                rsvpForm.addEventListener('submit', handleRSVPSubmit);
+            }
+        }
+        
+        function handleRSVPSubmit(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('rsvpName').value.trim();
+            const email = document.getElementById('rsvpEmail').value.trim();
+            const guests = parseInt(document.getElementById('rsvpGuests').value) || 0;
+            const comment = document.getElementById('rsvpComment').value.trim();
+            
+            if (!name) {
+                showNotification('Por favor, informe seu nome', 'error');
+                return;
+            }
+            
+            const rsvpData = {
+                id: generateId(),
+                event_id: currentEvent.id,
+                user_id: getUserId(),
+                name: name,
+                email: email || null,
+                guests: guests,
+                comment: comment || null,
+                created_at: new Date().toISOString()
+            };
+            
+            DB.addRSVP(rsvpData);
+            currentUserRSVP = rsvpData;
+            
+            // Atualizar nome do usuário
+            DB.updateUserName(name);
+            
+            showNotification('Presença confirmada com sucesso!', 'success');
+            
+            // Recarregar a página para atualizar tudo
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        }
+        
+        function updateRSVP() {
+            const rsvpForm = renderRSVPForm();
+            
+            const modal = document.getElementById('editModal');
+            modal.innerHTML = `
+                <div class="bg-slate-800 rounded-2xl p-8 max-w-md w-full mx-4">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-white">Alterar Confirmação</h3>
+                        <button onclick="closeModal()" class="p-2 hover:bg-slate-700 rounded-lg transition-colors">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div id="updateRSVPForm">
+                        ${rsvpForm}
+                    </div>
+                    
+                    <div class="mt-6 flex gap-4">
+                        <button onclick="closeModal()" 
+                                class="flex-1 px-4 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium">
+                            Cancelar
+                        </button>
+                        <button onclick="submitRSVPUpdate()" 
+                                class="flex-1 btn-primary py-3 rounded-lg font-medium">
+                            Atualizar
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Preencher com dados atuais
+            document.getElementById('rsvpName').value = currentUserRSVP.name;
+            if (currentUserRSVP.email) document.getElementById('rsvpEmail').value = currentUserRSVP.email;
+            document.getElementById('rsvpGuests').value = currentUserRSVP.guests || 0;
+            if (currentUserRSVP.comment) document.getElementById('rsvpComment').value = currentUserRSVP.comment;
+            
+            modal.classList.remove('hidden');
+        }
+        
+        function submitRSVPUpdate() {
+            const name = document.getElementById('rsvpName').value.trim();
+            const email = document.getElementById('rsvpEmail').value.trim();
+            const guests = parseInt(document.getElementById('rsvpGuests').value) || 0;
+            const comment = document.getElementById('rsvpComment').value.trim();
+            
+            if (!name) {
+                showNotification('Por favor, informe seu nome', 'error');
+                return;
+            }
+            
+            const updatedRSVP = {
+                ...currentUserRSVP,
+                name: name,
+                email: email || null,
+                guests: guests,
+                comment: comment || null
+            };
+            
+            DB.addRSVP(updatedRSVP);
+            currentUserRSVP = updatedRSVP;
+            
+            // Atualizar nome do usuário
+            DB.updateUserName(name);
+            
+            showNotification('Confirmação atualizada com sucesso!', 'success');
+            closeModal();
+            
+            // Recarregar a página
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        }
+        
+        function cancelRSVP() {
+            if (confirm('Tem certeza que deseja cancelar sua presença?')) {
+                DB.removeRSVP(currentEvent.id, getUserId());
+                currentUserRSVP = null;
+                showNotification('Presença cancelada', 'warning');
+                
+                // Recarregar a página
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            }
+        }
+        
+        function switchTab(tabName) {
+            currentTab = tabName;
+            const tabContent = document.getElementById('tabContent');
+            if (tabContent) {
+                tabContent.innerHTML = renderTabContent();
+            }
+            
+            // Atualizar classes das tabs
+            document.querySelectorAll('.tab-button').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            const activeTab = document.querySelector(`.tab-button:nth-child(${tabName === 'details' ? 1 : tabName === 'attendees' ? 2 : 3})`);
+            if (activeTab) {
+                activeTab.classList.add('active');
+            }
+        }
+        
+        function showInviteModal() {
+            const modal = document.getElementById('inviteModal');
+            document.getElementById('inviteCodeDisplay').textContent = currentEvent.inviteCode || 'SEM CÓDIGO';
+            modal.classList.remove('hidden');
+        }
+        
+        function verifyInviteCode() {
+            const input = document.getElementById('inviteCodeInput').value.trim().toUpperCase();
+            const errorElement = document.getElementById('inviteError');
+            
+            if (input === currentEvent.inviteCode) {
+                // Código correto, mostrar evento
+                closeModal();
+                renderEvent();
+                showNotification('Código verificado com sucesso!', 'success');
+            } else {
+                errorElement.classList.remove('hidden');
+                setTimeout(() => {
+                    errorElement.classList.add('hidden');
+                }, 3000);
+            }
+        }
+        
+        function showShareModal() {
+            const modal = document.getElementById('shareModal');
+            const shareLink = `${window.location.origin}${window.location.pathname}?id=${currentEvent.id}`;
+            
+            document.getElementById('shareLink').value = shareLink;
+            
+            // Gerar QR Code
+            const qrCodeContainer = document.getElementById('qrCodeContainer');
+            const qrCodeUrl = generateQRCodeUrl(shareLink, 192);
+            qrCodeContainer.innerHTML = `<img src="${qrCodeUrl}" alt="QR Code do Evento" class="w-48 h-48">`;
+            
+            modal.classList.remove('hidden');
+        }
+        
+        function copyShareLink() {
+            const shareLink = document.getElementById('shareLink').value;
+            copyToClipboard(shareLink);
+        }
+        
+        function shareWhatsApp() {
+            const text = `Confirme sua presença no evento "${currentEvent.name}": ${window.location.href}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        }
+        
+        function shareFacebook() {
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank');
+        }
+        
+        function shareTwitter() {
+            const text = `Estou participando do evento "${currentEvent.name}"!`;
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(window.location.href)}`, '_blank');
+        }
+        
+        function shareEmail() {
+            const subject = `Convite para: ${currentEvent.name}`;
+            const body = `Olá!\n\nVocê está convidado(a) para o evento "${currentEvent.name}".\n\nData: ${formatDate(currentEvent.date, currentEvent.time)}\n\nPara confirmar presença, acesse: ${window.location.href}\n\nAtenciosamente,\n${getUserProfile().name}`;
+            window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        }
+        
+        function showEditModal() {
+            const modal = document.getElementById('editModal');
+            
+            // Carregar formulário de edição
+            fetch('create.html')
+                .then(response => response.text())
+                .then(html => {
+                    // Aqui você precisaria extrair o formulário do create.html
+                    // e adaptar para edição
+                    // Por simplicidade, vou redirecionar para a página de criação com parâmetro de edição
+                    window.location.href = `create.html?edit=${currentEvent.id}`;
+                })
+                .catch(() => {
+                    showNotification('Erro ao carregar editor. Redirecionando...', 'error');
+                    window.location.href = `create.html?edit=${currentEvent.id}`;
+                });
+        }
+        
+        function exportAttendees() {
+            const rsvps = DB.getRSVPs(currentEvent.id);
+            
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Nome,E-mail,Acompanhantes,Comentário,Data Confirmação\n";
+            
+            rsvps.forEach(rsvp => {
+                const row = [
+                    `"${rsvp.name}"`,
+                    `"${rsvp.email || ''}"`,
+                    rsvp.guests || 0,
+                    `"${rsvp.comment || ''}"`,
+                    `"${formatDate(rsvp.created_at.split('T')[0], rsvp.created_at.split('T')[1])}"`
+                ].join(',');
+                csvContent += row + "\n";
+            });
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `participantes_${currentEvent.name.replace(/\s+/g, '_')}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification('Lista exportada com sucesso!', 'success');
+        }
+        
+        function sendReminder() {
+            showNotification('Funcionalidade de lembrete em desenvolvimento!', 'info');
+        }
+        
+        function duplicateEvent() {
+            const newEvent = {
+                ...currentEvent,
+                id: generateId(),
+                name: `Cópia - ${currentEvent.name}`,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            delete newEvent.id;
+            newEvent.id = generateId();
+            
+            DB.saveEvent(newEvent);
+            showNotification('Evento duplicado com sucesso!', 'success');
+            
+            setTimeout(() => {
+                window.location.href = `event.html?id=${newEvent.id}`;
+            }, 1500);
+        }
+        
+        function deleteEvent() {
+            if (confirm('Tem certeza que deseja excluir este evento? Esta ação não pode ser desfeita.')) {
+                DB.deleteEvent(currentEvent.id);
+                showNotification('Evento excluído com sucesso!', 'warning');
+                
+                setTimeout(() => {
+                    window.location.href = 'my-events.html';
+                }, 1500);
+            }
+        }
+        
+        function closeModal() {
+            document.querySelectorAll('.modal-overlay').forEach(modal => {
+                modal.classList.add('hidden');
+            });
+        }
+        
+        function showError(message) {
+            const container = document.getElementById('eventContent');
+            container.innerHTML = `
+                <div class="container mx-auto px-4 py-20">
+                    <div class="text-center">
+                        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-500/20 mb-6">
+                            <i class="fas fa-exclamation-triangle text-3xl text-red-400"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-300 mb-3">Erro ao carregar evento</h2>
+                        <p class="text-slate-500 mb-8">${message}</p>
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                            <a href="discover.html" 
+                               class="px-6 py-3 bg-violet-600 hover:bg-violet-700 rounded-xl font-medium">
+                                Explorar Eventos
+                            </a>
+                            <a href="create.html" 
+                               class="px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl font-medium">
+                                Criar Evento
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+
+</html>

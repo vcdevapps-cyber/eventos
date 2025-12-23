@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark-theme">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Eventos - Proclame</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/custom.css">
+    <style>
+        .event-type-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .event-type-public {
+            background: rgba(34, 197, 94, 0.1);
+            color: rgb(34, 197, 94);
+        }
+        
+        .event-type-private {
+            background: rgba(245, 158, 11, 0.1);
+            color: rgb(245, 158, 11);
+        }
+        
+        .event-type-invite {
+            background: rgba(168, 85, 247, 0.1);
+            color: rgb(168, 85, 247);
+        }
+        
+        .event-status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .event-status-upcoming {
+            background: rgba(59, 130, 246, 0.1);
+            color: rgb(59, 130, 246);
+        }
+        
+        .event-status-ongoing {
+            background: rgba(34, 197, 94, 0.1);
+            color: rgb(34, 197, 94);
+        }
+        
+        .event-status-past {
+            background: rgba(148, 163, 184, 0.1);
+            color: rgb(148, 163, 184);
+        }
+        
+        .event-status-cancelled {
+            background: rgba(239, 68, 68, 0.1);
+            color: rgb(239, 68, 68);
+        }
+        
+        .empty-state {
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #8b5cf6;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card .label {
+            font-size: 0.875rem;
+            color: #94a3b8;
+        }
+        
+        .action-button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .action-button:hover {
+            transform: translateY(-1px);
+        }
+        
+        .action-button.view {
+            background: rgba(59, 130, 246, 0.1);
+            color: rgb(59, 130, 246);
+        }
+        
+        .action-button.edit {
+            background: rgba(245, 158, 11, 0.1);
+            color: rgb(245, 158, 11);
+        }
+        
+        .action-button.share {
+            background: rgba(34, 197, 94, 0.1);
+            color: rgb(34, 197, 94);
+        }
+        
+        .action-button.delete {
+            background: rgba(239, 68, 68, 0.1);
+            color: rgb(239, 68, 68);
+        }
+        
+        .tab-navigation {
+            display: flex;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+        
+        .tab-button {
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid transparent;
+            color: #94a3b8;
+            font-weight: 500;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .tab-button:hover {
+            color: #cbd5e1;
+        }
+        
+        .tab-button.active {
+            color: #8b5cf6;
+            border-bottom-color: #8b5cf6;
+        }
+        
+        .event-card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+        
+        .event-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+        
+        .event-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .event-card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+        
+        .event-card-description {
+            color: #94a3b8;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .event-card-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .event-card-detail {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #cbd5e1;
+            font-size: 0.875rem;
+        }
+        
+        .event-card-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .progress-bar {
+            height: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 9999px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8b5cf6, #ec4899);
+            border-radius: 9999px;
+            transition: width 0.3s;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .event-card-details {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-slate-900 text-slate-100 min-h-screen font-['Inter']">
+
+    <!-- Navbar -->
+    <nav class="navbar-glass sticky top-0 z-40">
+        <div class="container mx-auto px-4">
+            <div class="flex h-16 items-center justify-between">
+                <div class="flex items-center gap-8">
+                    <a href="index.html" class="text-2xl font-bold text-violet-400 flex items-center gap-2">
+                        <i class="fas fa-bullhorn"></i>
+                        <span>Proclame</span>
+                    </a>
+                    
+                    <div class="hidden md:flex items-center gap-6">
+                        <a href="index.html" class="text-slate-300 hover:text-violet-400 transition-colors flex items-center gap-2">
+                            <i class="fas fa-home"></i>
+                            Início
+                        </a>
+                        <a href="discover.html" class="text-slate-300 hover:text-violet-400 transition-colors flex items-center gap-2">
+                            <i class="fas fa-compass"></i>
+                            Descobrir
+                            <span class="public-events-count bg-violet-500 text-xs px-2 py-0.5 rounded-full"></span>
+                        </a>
+                        <a href="my-events.html" class="text-violet-400 font-medium flex items-center gap-2">
+                            <i class="fas fa-calendar-alt"></i>
+                            Meus Eventos
+                            <span class="my-events-count bg-violet-500 text-xs px-2 py-0.5 rounded-full"></span>
+                        </a>
+                        <a href="my-rsvps.html" class="text-slate-300 hover:text-violet-400 transition-colors flex items-center gap-2">
+                            <i class="fas fa-check-circle"></i>
+                            Minhas Confirmações
+                            <span class="my-rsvps-count bg-violet-500 text-xs px-2 py-0.5 rounded-full"></span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTheme()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors" title="Alternar tema">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <a href="create.html" class="btn-primary px-6 py-2 rounded-lg font-medium text-white flex items-center gap-2">
+                        <i class="fas fa-plus"></i>
+                        Criar Evento
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8">
+            <div>
+                <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">Meus Eventos</h1>
+                <p class="text-slate-400">
+                    Gerencie todos os eventos que você criou
+                    <span class="ml-2 my-events-count bg-violet-500/20 text-violet-300 text-xs px-2 py-1 rounded-full"></span>
+                </p>
+            </div>
+            
+            <div class="flex gap-3">
+                <a href="create.html" class="btn-primary px-6 py-3 rounded-lg font-medium text-white flex items-center gap-2">
+                    <i class="fas fa-plus-circle"></i>
+                    Novo Evento
+                </a>
+                <button onclick="exportAllEvents()" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-lg font-medium flex items-center gap-2">
+                    <i class="fas fa-file-export"></i>
+                    Exportar
+                </button>
+            </div>
+        </div>
+        
+        <!-- Estatísticas -->
+        <div class="dashboard-stats mb-8">
+            <div class="stat-card">
+                <div class="number" id="totalEvents">0</div>
+                <div class="label">Total de Eventos</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="upcomingEvents">0</div>
+                <div class="label">Próximos</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalAttendees">0</div>
+                <div class="label">Total Participantes</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="avgAttendance">0%</div>
+                <div class="label">Taxa de Confirmação</div>
+            </div>
+        </div>
+        
+        <!-- Navegação por Tabs -->
+        <div class="tab-navigation">
+            <div class="tab-button active" data-tab="all" onclick="switchTab('all')">
+                <i class="fas fa-layer-group mr-2"></i>
+                Todos
+            </div>
+            <div class="tab-button" data-tab="upcoming" onclick="switchTab('upcoming')">
+                <i class="fas fa-clock mr-2"></i>
+                Próximos
+            </div>
+            <div class="tab-button" data-tab="past" onclick="switchTab('past')">
+                <i class="fas fa-history mr-2"></i>
+                Passados
+            </div>
+            <div class="tab-button" data-tab="public" onclick="switchTab('public')">
+                <i class="fas fa-globe mr-2"></i>
+                Públicos
+            </div>
+            <div class="tab-button" data-tab="private" onclick="switchTab('private')">
+                <i class="fas fa-lock mr-2"></i>
+                Privados
+            </div>
+        </div>
+        
+        <!-- Lista de Eventos -->
+        <div id="eventsList">
+            <!-- Eventos serão carregados aqui -->
+            <div class="empty-state">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-800 mb-6">
+                    <i class="fas fa-calendar text-3xl text-slate-500"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-300 mb-2">Carregando seus eventos...</h3>
+                <p class="text-slate-500">Por favor, aguarde enquanto buscamos seus eventos.</p>
+            </div>
+        </div>
+        
+        <!-- Estado Vazio -->
+        <div id="emptyState" class="hidden">
+            <div class="empty-state">
+                <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-slate-800/50 mb-6">
+                    <i class="fas fa-calendar-plus text-4xl text-slate-500"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-300 mb-3">Nenhum evento encontrado</h3>
+                <p class="text-slate-500 max-w-md mx-auto mb-8">
+                    Você ainda não criou nenhum evento ou não há eventos correspondentes ao filtro selecionado.
+                </p>
+                <a href="create.html" class="btn-primary px-6 py-3 rounded-lg font-medium inline-flex items-center gap-2">
+                    <i class="fas fa-plus-circle"></i>
+                    Criar Meu Primeiro Evento
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 py-8 mt-12">
+        <div class="container mx-auto px-4 text-center text-slate-500">
+            <p>&copy; 2024 Proclame. Gerencie seus eventos com facilidade e segurança.</p>
+            <p class="text-sm mt-2">Todos os seus dados são armazenados localmente no seu navegador.</p>
+        </div>
+    </footer>
+
+    <!-- Modal de Confirmação de Exclusão -->
+    <div id="deleteModal" class="modal-overlay hidden">
+        <div class="bg-slate-800 rounded-2xl p-8 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-white">Excluir Evento</h3>
+                <button onclick="closeModal()" class="p-2 hover:bg-slate-700 rounded-lg transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-500/20 text-red-400 text-2xl mb-4">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h4 class="text-lg font-bold text-white mb-2" id="deleteEventTitle">Evento</h4>
+                <p class="text-slate-400">
+                    Tem certeza que deseja excluir este evento? Esta ação não pode ser desfeita.
+                </p>
+                <p class="text-slate-500 text-sm mt-3">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Todas as confirmações serão perdidas.
+                </p>
+            </div>
+            
+            <div class="flex gap-4">
+                <button onclick="closeModal()" 
+                        class="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium">
+                    Cancelar
+                </button>
+                <button onclick="confirmDelete()" 
+                        class="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 rounded-lg font-medium text-white">
+                    <i class="fas fa-trash mr-2"></i>
+                    Excluir
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // Variáveis globais
+        let currentEvents = [];
+        let filteredEvents = [];
+        let currentTab = 'all';
+        let eventToDelete = null;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Atualizar contadores
+            updateEventCounters();
+            
+            // Carregar eventos
+            loadEvents();
+            
+            // Atualizar estatísticas
+            updateStats();
+        });
+        
+        function loadEvents() {
+            const userId = getUserId();
+            currentEvents = DB.getUserEvents(userId);
+            
+            // Ordenar por data (mais recentes primeiro)
+            currentEvents.sort((a, b) => {
+                return new Date(b.createdAt) - new Date(a.createdAt);
+            });
+            
+            applyFilters();
+        }
+        
+        function applyFilters() {
+            const now = new Date();
+            filteredEvents = currentEvents.filter(event => {
+                const eventDate = new Date(`${event.date}T${event.time}`);
+                const isPast = eventDate < now;
+                
+                switch(currentTab) {
+                    case 'all':
+                        return true;
+                    case 'upcoming':
+                        return !isPast;
+                    case 'past':
+                        return isPast;
+                    case 'public':
+                        return event.visibility === 'public';
+                    case 'private':
+                        return event.visibility === 'private' || event.visibility === 'invite-only';
+                    default:
+                        return true;
+                }
+            });
+            
+            renderEvents();
+        }
+        
+        function renderEvents() {
+            const container = document.getElementById('eventsList');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (filteredEvents.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            
+            container.innerHTML = filteredEvents.map(event => {
+                const rsvps = DB.getRSVPs(event.id);
+                const attendeesCount = DB.getEventAttendeeCount(event.id);
+                const eventDate = new Date(`${event.date}T${event.time}`);
+                const now = new Date();
+                const isPast = eventDate < now;
+                const isToday = eventDate.toDateString() === now.toDateString();
+                const isUpcoming = !isPast && !isToday;
+                const relativeDate = formatRelativeDate(event.date, event.time);
+                
+                // Determinar status
+                let statusBadge = '';
+                if (isPast) {
+                    statusBadge = '<span class="event-status-badge event-status-past"><i class="fas fa-history"></i> Passado</span>';
+                } else if (isToday) {
+                    statusBadge = '<span class="event-status-badge event-status-ongoing"><i class="fas fa-play-circle"></i> Hoje</span>';
+                } else {
+                    statusBadge = `<span class="event-status-badge event-status-upcoming"><i class="fas fa-clock"></i> ${relativeDate}</span>`;
+                }
+                
+                // Determinar tipo
+                let typeBadge = '';
+                switch(event.visibility) {
+                    case 'public':
+                        typeBadge = '<span class="event-type-badge event-type-public"><i class="fas fa-globe"></i> Público</span>';
+                        break;
+                    case 'private':
+                        typeBadge = '<span class="event-type-badge event-type-private"><i class="fas fa-lock"></i> Privado</span>';
+                        break;
+                    case 'invite-only':
+                        typeBadge = '<span class="event-type-badge event-type-invite"><i class="fas fa-key"></i> Convidados</span>';
+                        break;
+                }
+                
+                // Progresso de ocupação (se for limitado)
+                let progressBar = '';
+                if (event.type === 'limited' && event.attendeeLimit) {
+                    const percentage = Math.min((attendeesCount / event.attendeeLimit) * 100, 100);
+                    progressBar = `
+                        <div class="progress-bar">
+                            <div class="progress-bar-fill" style="width: ${percentage}%"></div>
+                        </div>
+                        <div class="flex justify-between text-sm text-slate-400">
+                            <span>${attendeesCount} confirmados</span>
+                            <span>${event.attendeeLimit} vagas</span>
+                        </div>
+                    `;
+                }
+                
+                return `
+                    <div class="event-card mb-6">
+                        <div class="event-card-header">
+                            <div>
+                                <div class="flex flex-wrap gap-2 mb-2">
+                                    ${statusBadge}
+                                    ${typeBadge}
+                                    ${event.type === 'limited' ? 
+                                        '<span class="event-type-badge bg-violet-500/20 text-violet-400"><i class="fas fa-users"></i> Limitado</span>' : 
+                                        '<span class="event-type-badge bg-blue-500/20 text-blue-400"><i class="fas fa-infinity"></i> Ilimitado</span>'
+                                    }
+                                </div>
+                                <h3 class="event-card-title">${event.name}</h3>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-2xl font-bold text-violet-400 mb-1">${attendeesCount}</div>
+                                <div class="text-xs text-slate-500">Participantes</div>
+                            </div>
+                        </div>
+                        
+                        ${event.description ? `
+                            <p class="event-card-description">${event.description}</p>
+                        ` : ''}
+                        
+                        <div class="event-card-details">
+                            <div class="event-card-detail">
+                                <i class="fas fa-calendar text-violet-400"></i>
+                                <span>${formatDateOnly(event.date)}</span>
+                            </div>
+                            <div class="event-card-detail">
+                                <i class="fas fa-clock text-violet-400"></i>
+                                <span>${formatTimeOnly(event.time)}</span>
+                            </div>
+                            <div class="event-card-detail">
+                                <i class="fas fa-map-marker-alt text-violet-400"></i>
+                                <span>${event.locationType === 'none' ? 'Local a definir' : 
+                                      event.locationType === 'maps' ? 'Ver no mapa' : 
+                                      (event.location || 'Sem local').substring(0, 30)}${(event.location || '').length > 30 ? '...' : ''}</span>
+                            </div>
+                            <div class="event-card-detail">
+                                <i class="fas fa-calendar-plus text-violet-400"></i>
+                                <span>Criado em ${formatDateOnly(event.createdAt.split('T')[0])}</span>
+                            </div>
+                        </div>
+                        
+                        ${progressBar}
+                        
+                        <div class="event-card-actions">
+                            <a href="event.html?id=${event.id}" 
+                               class="action-button view">
+                                <i class="fas fa-eye"></i>
+                                Ver
+                            </a>
+                            <button onclick="editEvent('${event.id}')" 
+                                    class="action-button edit">
+                                <i class="fas fa-edit"></i>
+                                Editar
+                            </button>
+                            <button onclick="shareEvent('${event.id}', '${event.name}')" 
+                                    class="action-button share">
+                                <i class="fas fa-share-alt"></i>
+                                Compartilhar
+                            </button>
+                            <button onclick="showDeleteModal('${event.id}', '${event.name}')" 
+                                    class="action-button delete">
+                                <i class="fas fa-trash"></i>
+                                Excluir
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function switchTab(tabName) {
+            currentTab = tabName;
+            
+            // Atualizar classes das tabs
+            document.querySelectorAll('.tab-button').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.tab === tabName) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            applyFilters();
+        }
+        
+        function updateStats() {
+            const now = new Date();
+            
+            // Total de eventos
+            document.getElementById('totalEvents').textContent = currentEvents.length;
+            
+            // Eventos próximos
+            const upcomingCount = currentEvents.filter(event => {
+                const eventDate = new Date(`${event.date}T${event.time}`);
+                return eventDate > now;
+            }).length;
+            document.getElementById('upcomingEvents').textContent = upcomingCount;
+            
+            // Total de participantes em todos os eventos
+            let totalAttendees = 0;
+            currentEvents.forEach(event => {
+                totalAttendees += DB.getEventAttendeeCount(event.id);
+            });
+            document.getElementById('totalAttendees').textContent = totalAttendees;
+            
+            // Taxa média de ocupação
+            let totalCapacity = 0;
+            let totalAttended = 0;
+            
+            currentEvents.forEach(event => {
+                const attendees = DB.getEventAttendeeCount(event.id);
+                totalAttended += attendees;
+                
+                if (event.type === 'limited' && event.attendeeLimit) {
+                    totalCapacity += event.attendeeLimit;
+                } else {
+                    // Para eventos ilimitados, consideramos a capacidade como o número de participantes
+                    totalCapacity += attendees;
+                }
+            });
+            
+            const avgAttendance = totalCapacity > 0 ? Math.round((totalAttended / totalCapacity) * 100) : 0;
+            document.getElementById('avgAttendance').textContent = `${avgAttendance}%`;
+        }
+        
+        function editEvent(eventId) {
+            window.location.href = `create.html?edit=${eventId}`;
+        }
+        
+        function shareEvent(eventId, eventName) {
+            const url = `${window.location.origin}/event.html?id=${eventId}`;
+            copyToClipboard(url);
+            showNotification(`Link do evento "${eventName}" copiado!`, 'success');
+        }
+        
+        function showDeleteModal(eventId, eventName) {
+            eventToDelete = eventId;
+            document.getElementById('deleteEventTitle').textContent = eventName;
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
+        
+        function confirmDelete() {
+            if (eventToDelete) {
+                DB.deleteEvent(eventToDelete);
+                showNotification('Evento excluído com sucesso!', 'success');
+                closeModal();
+                
+                // Recarregar eventos
+                loadEvents();
+                updateStats();
+                updateEventCounters();
+            }
+        }
+        
+        function exportAllEvents() {
+            if (currentEvents.length === 0) {
+                showNotification('Não há eventos para exportar', 'warning');
+                return;
+            }
+            
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Nome,Descrição,Data,Hora,Local,Tipo,Visibilidade,Capacidade,Participantes,Criado Em\n";
+            
+            currentEvents.forEach(event => {
+                const rsvps = DB.getRSVPs(event.id);
+                const attendeesCount = DB.getEventAttendeeCount(event.id);
+                
+                const row = [
+                    `"${event.name}"`,
+                    `"${event.description || ''}"`,
+                    `"${formatDateOnly(event.date)}"`,
+                    `"${formatTimeOnly(event.time)}"`,
+                    `"${event.location || ''}"`,
+                    event.type,
+                    event.visibility,
+                    event.type === 'limited' ? event.attendeeLimit : 'Ilimitado',
+                    attendeesCount,
+                    `"${formatDate(event.createdAt.split('T')[0], event.createdAt.split('T')[1])}"`
+                ].join(',');
+                
+                csvContent += row + "\n";
+            });
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `meus_eventos_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification('Eventos exportados com sucesso!', 'success');
+        }
+        
+        function closeModal() {
+            document.getElementById('deleteModal').classList.add('hidden');
+            eventToDelete = null;
+        }
+    </script>
+</body>
+
+</html>

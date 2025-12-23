@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark-theme">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proclame - Plataforma de Eventos e RSVP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/custom.css">
+    <style>
+        .hero-gradient {
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #3b82f6 100%);
+            background-size: 200% 200%;
+            animation: gradient 15s ease infinite;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.2);
+        }
+        
+        .stats-card {
+            backdrop-filter: blur(10px);
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .testimonial-card {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.8));
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+    </style>
+</head>
+
+<body class="bg-slate-900 text-slate-100 min-h-screen font-['Inter']">
+
+    <!-- Navbar -->
+    <nav class="navbar-glass fixed w-full z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex h-16 items-center justify-between">
+                <div class="flex items-center gap-8">
+                    <a href="index.html" class="text-2xl font-bold text-violet-400 flex items-center gap-2">
+                        <i class="fas fa-bullhorn"></i>
+                        <span>Proclame</span>
+                    </a>
+                    
+                    <div class="hidden md:flex items-center gap-6">
+                        <a href="index.html" class="text-violet-400 font-medium flex items-center gap-2">
+                            <i class="fas fa-home"></i>
+                            Início
+                        </a>
+                        <a href="discover.html" class="text-slate-300 hover:text-violet-400 transition-colors flex items-center gap-2">
+                            <i class="fas fa-compass"></i>
+                            Descobrir
+                            <span class="public-events-count bg-violet-500 text-xs px-2 py-0.5 rounded-full"></span>
+                        </a>
+                        <a href="my-events.html" class="text-slate-300 hover:text-violet-400 transition-colors flex items-center gap-2">
+                            <i class="fas fa-calendar-alt"></i>
+                            Meus Eventos
+                            <span class="my-events-count bg-violet-500 text-xs px-2 py-0.5 rounded-full"></span>
+                        </a>
+                        <a href="my-rsvps.html" class="text-slate-300 hover:text-violet-400 transition-colors flex items-center gap-2">
+                            <i class="fas fa-check-circle"></i>
+                            Minhas Confirmações
+                            <span class="my-rsvps-count bg-violet-500 text-xs px-2 py-0.5 rounded-full"></span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTheme()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors" title="Alternar tema">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <a href="create.html" class="btn-primary px-6 py-2 rounded-lg font-medium text-white flex items-center gap-2">
+                        <i class="fas fa-plus"></i>
+                        Criar Evento
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <main class="pt-20">
+        <section class="hero-gradient py-20 md:py-32">
+            <div class="container mx-auto px-4 text-center">
+                <div class="max-w-4xl mx-auto">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6 text-white">
+                        Crie, Compartilhe e Gerencie Eventos com 
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-pink-400">Facilidade</span>
+                    </h1>
+                    
+                    <p class="text-xl text-slate-200 mb-10 max-w-2xl mx-auto">
+                        A plataforma definitiva para organização de eventos. Convide, acompanhe confirmações e faça sua celebração acontecer.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="create.html" class="bg-white text-slate-900 px-8 py-4 rounded-xl font-bold text-lg hover:bg-slate-100 transition-all shadow-2xl flex items-center justify-center gap-3">
+                            <i class="fas fa-rocket"></i>
+                            Criar Evento Grátis
+                        </a>
+                        <a href="discover.html" class="bg-transparent border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white/10 transition-all flex items-center justify-center gap-3">
+                            <i class="fas fa-search"></i>
+                            Explorar Eventos
+                        </a>
+                    </div>
+                    
+                    <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto">
+                        <div class="stats-card p-4 rounded-xl text-center">
+                            <div class="text-3xl font-bold text-violet-400 public-events-count">0</div>
+                            <div class="text-sm text-slate-400 mt-1">Eventos Ativos</div>
+                        </div>
+                        <div class="stats-card p-4 rounded-xl text-center">
+                            <div class="text-3xl font-bold text-emerald-400">100%</div>
+                            <div class="text-sm text-slate-400 mt-1">Gratuito</div>
+                        </div>
+                        <div class="stats-card p-4 rounded-xl text-center">
+                            <div class="text-3xl font-bold text-amber-400">24/7</div>
+                            <div class="text-sm text-slate-400 mt-1">Disponível</div>
+                        </div>
+                        <div class="stats-card p-4 rounded-xl text-center">
+                            <div class="text-3xl font-bold text-cyan-400">∞</div>
+                            <div class="text-sm text-slate-400 mt-1">Convidados</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="py-20">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-4">Por que escolher o Proclame?</h2>
+                <p class="text-slate-400 text-center mb-16 max-w-2xl mx-auto">
+                    Tudo que você precisa em uma plataforma simples e poderosa
+                </p>
+                
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="feature-card bg-slate-800/50 p-8 rounded-2xl border border-slate-700/50 transition-all duration-300">
+                        <div class="w-16 h-16 rounded-xl bg-violet-500/20 flex items-center justify-center text-2xl text-violet-400 mb-6">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Criação Rápida</h3>
+                        <p class="text-slate-400">
+                            Crie eventos em menos de 2 minutos. Sem cadastro necessário, apenas um link para compartilhar.
+                        </p>
+                    </div>
+                    
+                    <div class="feature-card bg-slate-800/50 p-8 rounded-2xl border border-slate-700/50 transition-all duration-300">
+                        <div class="w-16 h-16 rounded-xl bg-emerald-500/20 flex items-center justify-center text-2xl text-emerald-400 mb-6">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Controle Total</h3>
+                        <p class="text-slate-400">
+                            Acompanhe confirmações em tempo real, limite participantes e gerencie sua lista de convidados.
+                        </p>
+                    </div>
+                    
+                    <div class="feature-card bg-slate-800/50 p-8 rounded-2xl border border-slate-700/50 transition-all duration-300">
+                        <div class="w-16 h-16 rounded-xl bg-cyan-500/20 flex items-center justify-center text-2xl text-cyan-400 mb-6">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Segurança</h3>
+                        <p class="text-slate-400">
+                            Eventos privados, controle de acesso e todos os dados protegidos. Sua celebração em boas mãos.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works -->
+        <section class="py-20 bg-slate-800/30">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-4">Como funciona</h2>
+                <p class="text-slate-400 text-center mb-16 max-w-2xl mx-auto">
+                    Três passos simples para organizar seu evento perfeito
+                </p>
+                
+                <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                    <div class="relative">
+                        <div class="absolute -top-4 -left-4 w-8 h-8 rounded-full bg-violet-500 flex items-center justify-center text-sm font-bold">
+                            1
+                        </div>
+                        <div class="bg-slate-800/50 p-8 rounded-2xl border border-slate-700/50 h-full">
+                            <h3 class="text-xl font-bold mb-4">Crie seu evento</h3>
+                            <p class="text-slate-400 mb-6">
+                                Preencha os detalhes: nome, data, local e configurações. Personalize como quiser.
+                            </p>
+                            <div class="text-violet-400">
+                                <i class="fas fa-clock mr-2"></i>
+                                Leva menos de 2 minutos
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="relative">
+                        <div class="absolute -top-4 -left-4 w-8 h-8 rounded-full bg-violet-500 flex items-center justify-center text-sm font-bold">
+                            2
+                        </div>
+                        <div class="bg-slate-800/50 p-8 rounded-2xl border border-slate-700/50 h-full">
+                            <h3 class="text-xl font-bold mb-4">Compartilhe o link</h3>
+                            <p class="text-slate-400 mb-6">
+                                Envie o link único para seus convidados por WhatsApp, e-mail ou redes sociais.
+                            </p>
+                            <div class="text-violet-400">
+                                <i class="fas fa-link mr-2"></i>
+                                Link personalizado e QR Code
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="relative">
+                        <div class="absolute -top-4 -left-4 w-8 h-8 rounded-full bg-violet-500 flex items-center justify-center text-sm font-bold">
+                            3
+                        </div>
+                        <div class="bg-slate-800/50 p-8 rounded-2xl border border-slate-700/50 h-full">
+                            <h3 class="text-xl font-bold mb-4">Acompanhe as confirmações</h3>
+                            <p class="text-slate-400 mb-6">
+                                Veja em tempo real quem confirmou presença, comentários e gerencie sua lista.
+                            </p>
+                            <div class="text-violet-400">
+                                <i class="fas fa-chart-line mr-2"></i>
+                                Dashboard em tempo real
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-16">
+                    <a href="create.html" class="btn-primary px-8 py-4 rounded-xl font-bold text-lg inline-flex items-center gap-3">
+                        <i class="fas fa-play-circle"></i>
+                        Começar Agora
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials -->
+        <section class="py-20">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-4">O que estão dizendo</h2>
+                <p class="text-slate-400 text-center mb-16 max-w-2xl mx-auto">
+                    Organizadores de eventos que confiam no Proclame
+                </p>
+                
+                <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                    <div class="testimonial-card p-8 rounded-2xl">
+                        <div class="flex items-center mb-6">
+                            <div class="avatar-lg mr-4">
+                                MS
+                            </div>
+                            <div>
+                                <h4 class="font-bold">Mariana Silva</h4>
+                                <p class="text-sm text-slate-400">Casamento, 150 convidados</p>
+                            </div>
+                        </div>
+                        <p class="text-slate-300 italic">
+                            "Usei para meu casamento e foi perfeito! Controle total das confirmações e meus convidados adoraram a facilidade."
+                        </p>
+                        <div class="flex text-amber-400 mt-4">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="testimonial-card p-8 rounded-2xl">
+                        <div class="flex items-center mb-6">
+                            <div class="avatar-lg mr-4">
+                                CR
+                            </div>
+                            <div>
+                                <h4 class="font-bold">Carlos Rodrigues</h4>
+                                <p class="text-sm text-slate-400">Workshop Corporativo</p>
+                            </div>
+                        </div>
+                        <p class="text-slate-300 italic">
+                            "Facilitou demais a organização do nosso workshop. A interface é intuitiva e os relatórios são excelentes."
+                        </p>
+                        <div class="flex text-amber-400 mt-4">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="testimonial-card p-8 rounded-2xl">
+                        <div class="flex items-center mb-6">
+                            <div class="avatar-lg mr-4">
+                                AP
+                            </div>
+                            <div>
+                                <h4 class="font-bold">Ana Paula</h4>
+                                <p class="text-sm text-slate-400">Aniversário Surpresa</p>
+                            </div>
+                        </div>
+                        <p class="text-slate-300 italic">
+                            "Organizei uma festa surpresa e o Proclame foi essencial para manter tudo secreto enquanto gerenciava as confirmações."
+                        </p>
+                        <div class="flex text-amber-400 mt-4">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Final -->
+        <section class="py-20 bg-gradient-to-r from-violet-900/30 to-slate-900/30">
+            <div class="container mx-auto px-4 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold mb-6">
+                    Pronto para transformar como você organiza eventos?
+                </h2>
+                <p class="text-xl text-slate-300 mb-10 max-w-2xl mx-auto">
+                    Junte-se a milhares de organizadores que já usam o Proclame
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="create.html" class="bg-violet-600 hover:bg-violet-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-xl flex items-center justify-center gap-3">
+                        <i class="fas fa-calendar-plus"></i>
+                        Criar Meu Primeiro Evento
+                    </a>
+                    <a href="discover.html" class="bg-transparent border-2 border-violet-500 text-violet-400 px-8 py-4 rounded-xl font-bold text-lg hover:bg-violet-500/10 transition-all flex items-center justify-center gap-3">
+                        <i class="fas fa-eye"></i>
+                        Ver Exemplos
+                    </a>
+                </div>
+                
+                <p class="text-slate-400 text-sm mt-8">
+                    Sem custos, sem cadastro obrigatório, sem complicações.
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <a href="index.html" class="text-2xl font-bold text-violet-400 flex items-center gap-2 mb-4">
+                        <i class="fas fa-bullhorn"></i>
+                        <span>Proclame</span>
+                    </a>
+                    <p class="text-slate-400">
+                        A plataforma definitiva para criação e gestão de eventos. Simples, poderosa e gratuita.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Produto</h4>
+                    <ul class="space-y-2">
+                        <li><a href="discover.html" class="text-slate-400 hover:text-violet-400">Descobrir Eventos</a></li>
+                        <li><a href="create.html" class="text-slate-400 hover:text-violet-400">Criar Evento</a></li>
+                        <li><a href="my-events.html" class="text-slate-400 hover:text-violet-400">Meus Eventos</a></li>
+                        <li><a href="my-rsvps.html" class="text-slate-400 hover:text-violet-400">Minhas Confirmações</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Recursos</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-slate-400 hover:text-violet-400">Central de Ajuda</a></li>
+                        <li><a href="#" class="text-slate-400 hover:text-violet-400">Blog</a></li>
+                        <li><a href="#" class="text-slate-400 hover:text-violet-400">API</a></li>
+                        <li><a href="#" class="text-slate-400 hover:text-violet-400">Status</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Legal</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-slate-400 hover:text-violet-400">Termos de Uso</a></li>
+                        <li><a href="#" class="text-slate-400 hover:text-violet-400">Política de Privacidade</a></li>
+                        <li><a href="#" class="text-slate-400 hover:text-violet-400">Cookies</a></li>
+                        <li><a href="#" class="text-slate-400 hover:text-violet-400">Contato</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-slate-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <div class="text-slate-500 text-sm">
+                    &copy; 2024 Proclame. Todos os direitos reservados.
+                </div>
+                
+                <div class="flex gap-4 mt-4 md:mt-0">
+                    <a href="#" class="text-slate-400 hover:text-violet-400">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-slate-400 hover:text-violet-400">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="text-slate-400 hover:text-violet-400">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="#" class="text-slate-400 hover:text-violet-400">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script>
+        // Atualizar contadores quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            updateEventCounters();
+        });
+    </script>
+</body>
+
+</html>
