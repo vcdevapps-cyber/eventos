@@ -1,0 +1,9 @@
+[file name]: robots.txt
+[file content begin]
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /private/
+
+Sitemap: https://proclame.app/sitemap.xml
+[file content end]
